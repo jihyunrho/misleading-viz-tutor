@@ -30,31 +30,21 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Main container with flex for vertical centering */}
-      <main className="flex min-h-screen  justify-center px-4 py-4">
-        {/* Responsive two-column grid with full height */}
-        <div className="grid h-[calc(100vh-2rem)] grid-cols-2 gap-4 items-center">
-          <div className="flex flex-col">
-            This is the first column of the layout
-            <div className="relative">
-              <img src="/images/visualizations/bar1_2.png" alt="Chart 1" />
-            </div>
-            <p className="mt-4 text-center text-sm text-muted-foreground">
-              This layout is designed for desktop viewing only and is not
-              responsive.
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Last updated: March 2025
-            </p>
-          </div>
-
-          {/* Second Column - Full Height */}
-          <div className="flex h-full flex-col">
-            <ChatBox />
-          </div>
+    <div className="flex flex-col h-screen bg-background">
+      <div className="grid h-screen grid-cols-2 gap-4 items-center">
+        <div className="flex flex-col px-4 py-2">
+          <img src="/images/visualizations/bar1_2.png" alt="Chart 1" />
+          <p className="mt-4 text-center text-sm text-muted-foreground">
+            This layout is designed for desktop viewing only and is not
+            responsive.
+          </p>
         </div>
-      </main>
+
+        {/* Second Column - Full Height */}
+        <div className="flex h-full max-h-screen overflow-hidden">
+          <ChatBox />
+        </div>
+      </div>
 
       {/* Session info in top-left corner */}
       <div className="absolute left-4 bottom-4 rounded-md bg-muted p-3 text-sm">

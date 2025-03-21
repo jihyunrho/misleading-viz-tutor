@@ -1,16 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 
 interface ChatBoxProps {
@@ -35,6 +27,17 @@ const ChatBox: React.FC<ChatBoxProps> = (props) => {
     },
   ]);
   const [input, setInput] = useState("");
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to bottom whenever messages change
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   const handleSendMessage = () => {
     if (input.trim() === "") return;
@@ -59,63 +62,57 @@ const ChatBox: React.FC<ChatBoxProps> = (props) => {
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, botMessage]);
-    }, 1000);
+    }, 500);
   };
 
   return (
-    <Card className="flex h-full flex-col">
-      <CardHeader className="px-6 py-4">
-        <CardTitle>Visualization Tutor</CardTitle>
-      </CardHeader>
+    <div className="flex h-full flex-col bg-gray-100">
+      <div className="flex px-6 py-2 border-b">
+        <h3 className="text-lg font-semibold leading-none">Chat</h3>
+      </div>
 
-      <CardContent className="flex-1 overflow-hidden p-0">
-        <ScrollArea className="h-full p-6">
+      <div className="flex-1 overflow-hidden p-0">
+        <ScrollArea className="h-full p-6" ref={scrollAreaRef}>
           <div className="flex flex-col gap-4">
             {messages.map((message) => (
               <div
                 key={message.id}
                 className={cn(
-                  "flex items-start gap-3 max-w-[90%]", // Increased from 80% to 90%
-                  message.sender === "user" ? "ml-auto" : ""
+                  "flex flex-col max-w-[90%]",
+                  message.sender === "user"
+                    ? "items-end ml-auto"
+                    : "items-start"
                 )}
               >
-                {message.sender === "bot" && (
-                  <Avatar>
-                    <AvatarFallback>AI</AvatarFallback>
-                    <AvatarImage src="/bot-avatar.png" />
-                  </Avatar>
-                )}
+                <span className="text-xs font-medium text-gray-600 mb-2 px-1">
+                  {message.sender === "bot" ? "AI Assistant" : "Me"}
+                </span>
 
                 <div
                   className={cn(
-                    "rounded-md p-3 min-w-[200px]", // Changed from rounded-lg to rounded-md (less radius) and added min-width
+                    "rounded-sm p-3",
                     message.sender === "user"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted"
+                      ? "bg-gray-500 text-primary-foreground"
+                      : "bg-white"
                   )}
                 >
                   {message.content}
                 </div>
-
-                {message.sender === "user" && (
-                  <Avatar>
-                    <AvatarFallback>ME</AvatarFallback>
-                    <AvatarImage src="/user-avatar.png" />
-                  </Avatar>
-                )}
               </div>
             ))}
+            {/* This empty div serves as our scroll target */}
+            <div ref={messagesEndRef} />
           </div>
         </ScrollArea>
-      </CardContent>
+      </div>
 
-      <CardFooter className="border-t p-4">
+      <div className="flex items-center border-t p-4">
         <div className="flex w-full items-end gap-2">
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message here..."
-            className="min-h-10 flex-1 resize-none"
+            className="min-h-10 flex-1 rounded-xs resize-none"
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
@@ -123,12 +120,16 @@ const ChatBox: React.FC<ChatBoxProps> = (props) => {
               }
             }}
           />
-          <Button onClick={handleSendMessage} size="icon" className="h-10 w-10">
+          <Button
+            onClick={handleSendMessage}
+            size="icon"
+            className="h-10 w-10 rounded-xs"
+          >
             <Send className="h-4 w-4" />
           </Button>
         </div>
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 };
 
