@@ -133,7 +133,7 @@ const ChatBox: React.FC<ChatBoxProps> = (props) => {
           <Button
             onClick={handleSendMessage}
             size="icon"
-            className="h-10 w-10 rounded-xs"
+            className="h-10 w-10 rounded-xs cursor-pointer"
           >
             <Send className="h-4 w-4" />
           </Button>

@@ -5,13 +5,15 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 
 import Image from "next/image";
 import ChatBox from "./components/ChatBox";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export default function Home() {
   const [sessionId, setSessionId] = useState("");
@@ -38,8 +40,12 @@ export default function Home() {
       <div className="flex-1 h-full items-center grid grid-cols-2 overflow-hidden">
         <div className="flex flex-col px-4 py-2 overflow-auto">
           <img src="/images/visualizations/bar1_2.png" alt="Chart 1" />
-          <p className="mt-4 text-center text-sm text-muted-foreground"></p>
-          <p>
+
+          <p className="font-bold mt-4 py-2 border-b-1">
+            AI's First (Incorrect) Reasoning
+          </p>
+
+          <p className="mt-2">
             Wow, the number of bicycles sold has skyrocketed dramatically from
             2017 to 2021! It looks like the sales have increased by a huge
             percentage each year. This must mean that biking is becoming
@@ -52,17 +58,28 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Session info in bottom-left corner */}
-      <div className="absolute left-4 bottom-4 rounded-md bg-muted p-3 text-sm">
-        <div>
-          <strong>Email:</strong> {userEmail}
+      <div className="bg-neutral-900 text-neutral-300 text-center py-2 px-4 flex items-center justify-between">
+        <div className="flex flex-row items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Badge className="bg-neutral-700 text-neutral-300 rounded-xs">
+              Email
+            </Badge>
+            <span className="text-sm text-neutral-400">{userEmail}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge className="bg-neutral-700 text-neutral-300 rounded-xs">
+              Session ID
+            </Badge>
+            <span className="text-sm text-neutral-400">{sessionId}</span>
+          </div>
         </div>
-        <div>
-          <strong>Session ID:</strong> {sessionId}
-        </div>
+        <Button
+          variant="secondary"
+          className="flex items-center gap-2 rounded-xs cursor-pointer"
+        >
+          Next Graph <ArrowRight className="h-4 w-4" />
+        </Button>
       </div>
-
-      <div className="bg-amber-600 text-center p-2">Bottom Bar</div>
     </div>
   );
 }
