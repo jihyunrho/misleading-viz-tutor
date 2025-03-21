@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { Bot, User as UserIcon } from "lucide-react";
+import LoadingDots from "./LoadingDots";
 
 interface ChatBoxProps {
   // Define your props here
@@ -144,7 +145,11 @@ const ChatBox: React.FC<ChatBoxProps> = (props) => {
             className="h-10 w-10 rounded-xs cursor-pointer"
             disabled={isWaitingForResponse || input.trim() === ""}
           >
-            <Send className="h-4 w-4" />
+            {isWaitingForResponse ? (
+              <LoadingDots />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
           </Button>
         </div>
       </div>

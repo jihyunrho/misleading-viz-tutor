@@ -1,84 +1,64 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
-import Image from "next/image";
-import ChatBox from "./components/ChatBox";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 export default function Home() {
-  const [sessionId, setSessionId] = useState("");
-  const [userEmail, setUserEmail] = useState("user@example.com"); // This would typically come from authentication
-
-  // Generate a random 6-digit alphanumeric session ID
-  useEffect(() => {
-    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let result = "";
-    for (let i = 0; i < 6; i++) {
-      result += characters.charAt(
-        Math.floor(Math.random() * characters.length)
-      );
-    }
-    setSessionId(result);
-  }, []);
-
   return (
-    <div className="flex flex-col h-screen max-h-screen overflow-hidden bg-background">
-      <div className="bg-amber-600 text-center p-2">
-        <h2>Hello World</h2>
-        The instructions will go here.
-      </div>
-      <div className="flex-1 h-full items-center grid grid-cols-2 overflow-hidden">
-        <div className="flex flex-col px-4 py-2 overflow-auto">
-          <img src="/images/visualizations/bar1_2.png" alt="Chart 1" />
-
-          <p className="font-bold mt-4 py-2 border-b-1">
-            AI's First (Incorrect) Reasoning
-          </p>
-
-          <p className="mt-2">
-            Wow, the number of bicycles sold has skyrocketed dramatically from
-            2017 to 2021! It looks like the sales have increased by a huge
-            percentage each year. This must mean that biking is becoming
-            incredibly popular, and the demand has exploded almost overnight!
-          </p>
-        </div>
-
-        <div className="flex h-full overflow-hidden">
-          <ChatBox />
-        </div>
-      </div>
-
-      <div className="bg-neutral-900 text-neutral-300 text-center py-2 px-4 flex items-center justify-between">
-        <div className="flex flex-row items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Badge className="bg-neutral-700 text-neutral-300 rounded-xs">
-              Email
-            </Badge>
-            <span className="text-sm text-neutral-400">{userEmail}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge className="bg-neutral-700 text-neutral-300 rounded-xs">
-              Session ID
-            </Badge>
-            <span className="text-sm text-neutral-400">{sessionId}</span>
+    <div className="flex flex-col h-screen max-h-screen bg-background">
+      <div className="flex-1 h-full grid grid-cols-2">
+        <div className="flex flex-col h-screen justify-center p-8 overflow-auto bg-slate-100 text-slate-500">
+          <div>
+            <h1 className="text-xl font-semibold text-slate-700">
+              Misleading DataViz Tutor
+            </h1>
+            <p className="mt-4">
+              This study is about how people reason about data visualizations.
+              Your task is to explain why the chart is misleading.
+            </p>
+            <p className="mt-4">
+              Enter your name and email. Click on the "Start Tutor Session"
+              button when you're ready.
+            </p>
           </div>
         </div>
-        <Button
-          variant="secondary"
-          className="flex items-center gap-2 rounded-xs cursor-pointer"
-        >
-          Next Graph <ArrowRight className="h-4 w-4" />
-        </Button>
+
+        <div className="flex flex-col h-screen justify-center p-8 overflow-y-scroll">
+          <div className="grid gap-6">
+            <div className="grid gap-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                type="text"
+                placeholder="John Doe"
+                className="rounded-xs"
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="your@email.com"
+                className="rounded-xs"
+                required
+              />
+            </div>
+
+            <Button
+              type="submit"
+              className="flex items-center gap-2 rounded-xs cursor-pointer bg-slate-900"
+            >
+              Start Tutor Session <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );
