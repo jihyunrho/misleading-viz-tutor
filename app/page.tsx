@@ -30,23 +30,29 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="flex flex-col h-screen bg-background">
-      <div className="grid h-screen grid-cols-2 gap-4 items-center">
-        <div className="flex flex-col px-4 py-2">
+    <div className="flex flex-col h-screen max-h-screen overflow-hidden bg-background">
+      <div className="bg-amber-600 text-center p-2">
+        <h2>Hello World</h2>
+        The instructions will go here.
+      </div>
+      <div className="flex-1 h-full items-center grid grid-cols-2 overflow-hidden">
+        <div className="flex flex-col px-4 py-2 overflow-auto">
           <img src="/images/visualizations/bar1_2.png" alt="Chart 1" />
-          <p className="mt-4 text-center text-sm text-muted-foreground">
-            This layout is designed for desktop viewing only and is not
-            responsive.
+          <p className="mt-4 text-center text-sm text-muted-foreground"></p>
+          <p>
+            Wow, the number of bicycles sold has skyrocketed dramatically from
+            2017 to 2021! It looks like the sales have increased by a huge
+            percentage each year. This must mean that biking is becoming
+            incredibly popular, and the demand has exploded almost overnight!
           </p>
         </div>
 
-        {/* Second Column - Full Height */}
-        <div className="flex h-full max-h-screen overflow-hidden">
+        <div className="flex h-full overflow-hidden">
           <ChatBox />
         </div>
       </div>
 
-      {/* Session info in top-left corner */}
+      {/* Session info in bottom-left corner */}
       <div className="absolute left-4 bottom-4 rounded-md bg-muted p-3 text-sm">
         <div>
           <strong>Email:</strong> {userEmail}
@@ -55,6 +61,8 @@ export default function Home() {
           <strong>Session ID:</strong> {sessionId}
         </div>
       </div>
+
+      <div className="bg-amber-600 text-center p-2">Bottom Bar</div>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { Send } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { Bot, User as UserIcon } from "lucide-react";
 
 interface ChatBoxProps {
   // Define your props here
@@ -62,18 +63,20 @@ const ChatBox: React.FC<ChatBoxProps> = (props) => {
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, botMessage]);
-    }, 500);
+    }, 1500);
   };
 
   return (
-    <div className="flex h-full flex-col bg-gray-100">
-      <div className="flex px-6 py-2 border-b">
-        <h3 className="text-lg font-semibold leading-none">Chat</h3>
+    <div className="flex h-full flex-col border-l">
+      <div className="">
+        <h3 className="text-lg font-semibold leading-none border-b mx-4 mt-1 py-2">
+          Chat
+        </h3>
       </div>
 
       <div className="flex-1 overflow-hidden p-0">
-        <ScrollArea className="h-full p-6" ref={scrollAreaRef}>
-          <div className="flex flex-col gap-4">
+        <ScrollArea className="h-full p-4" ref={scrollAreaRef}>
+          <div className="flex flex-col gap-3">
             {messages.map((message) => (
               <div
                 key={message.id}
@@ -84,16 +87,23 @@ const ChatBox: React.FC<ChatBoxProps> = (props) => {
                     : "items-start"
                 )}
               >
-                <span className="text-xs font-medium text-gray-600 mb-2 px-1">
-                  {message.sender === "bot" ? "AI Assistant" : "Me"}
-                </span>
+                <div className="flex items-center gap-1 mb-1">
+                  {message.sender === "bot" ? (
+                    <Bot className="h-4 w-4 text-green-600" />
+                  ) : (
+                    <UserIcon className="h-4 w-4 text-green-600" />
+                  )}
+                  <span className="text-xs font-medium text-neutral-600">
+                    {message.sender === "bot" ? "AI Assistant" : "Me"}
+                  </span>
+                </div>
 
                 <div
                   className={cn(
                     "rounded-sm p-3",
                     message.sender === "user"
-                      ? "bg-gray-500 text-primary-foreground"
-                      : "bg-white"
+                      ? "bg-neutral-50 text-neutral-600 rounded-tr-none"
+                      : "bg-green-50 text-green-600 rounded-tl-none"
                   )}
                 >
                   {message.content}
