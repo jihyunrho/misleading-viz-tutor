@@ -28,6 +28,7 @@ const ChatBox: React.FC<ChatBoxProps> = (props) => {
     },
   ]);
   const [input, setInput] = useState("");
+  const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -41,7 +42,10 @@ const ChatBox: React.FC<ChatBoxProps> = (props) => {
   };
 
   const handleSendMessage = () => {
-    if (input.trim() === "") return;
+    if (input.trim() === "" || isWaitingForResponse) return;
+
+    // Set waiting state to true
+    setIsWaitingForResponse(true);
 
     // Add user message
     const userMessage: Message = {
@@ -63,6 +67,9 @@ const ChatBox: React.FC<ChatBoxProps> = (props) => {
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, botMessage]);
+
+      // Set waiting state back to false after response
+      setIsWaitingForResponse(false);
     }, 1500);
   };
 
@@ -123,8 +130,9 @@ const ChatBox: React.FC<ChatBoxProps> = (props) => {
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message here..."
             className="min-h-10 flex-1 rounded-xs resize-none"
+            disabled={isWaitingForResponse}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
+              if (e.key === "Enter" && !e.shiftKey && !isWaitingForResponse) {
                 e.preventDefault();
                 handleSendMessage();
               }
@@ -134,6 +142,7 @@ const ChatBox: React.FC<ChatBoxProps> = (props) => {
             onClick={handleSendMessage}
             size="icon"
             className="h-10 w-10 rounded-xs cursor-pointer"
+            disabled={isWaitingForResponse || input.trim() === ""}
           >
             <Send className="h-4 w-4" />
           </Button>
