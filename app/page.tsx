@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { useTutorSessionStore } from "@/stores/tutorSessionStore";
 import { generateRandomTutorSessionId } from "@/lib/utils";
+import { getTutorPages } from "@/data/visualization-images";
 
 export default function Home() {
   const [name, setName] = useState("");
@@ -18,11 +19,6 @@ export default function Home() {
   const router = useRouter();
   const { setSession } = useTutorSessionStore();
 
-  const validateEmail = (email: string): boolean => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -30,32 +26,18 @@ export default function Home() {
     const newErrors = { name: "", email: "" };
     let hasError = false;
 
-    // Validate name
-    if (!name.trim()) {
-      newErrors.name = "Name is required";
-      hasError = true;
-    }
+    console.log(`name: ${name}, email: ${email}`);
 
-    // Validate email
-    if (!email.trim()) {
-      newErrors.email = "Email is required";
-      hasError = true;
-    } else if (!validateEmail(email)) {
-      newErrors.email = "Please enter a valid email";
-      hasError = true;
-    }
-
-    setErrors(newErrors);
+    // Server validation later
 
     // If no errors, proceed
     if (!hasError) {
       // Initialize the tutor session
-      const sessionId = generateRandomTutorSessionId();
       setSession({
-        sessionId,
+        sessionId: generateRandomTutorSessionId(),
+        participantName: name,
         participantEmail: email,
-        pages: [],
-        currentPageIndex: 0,
+        pages: getTutorPages(),
       });
 
       // Navigate to pre-session page

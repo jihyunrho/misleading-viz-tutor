@@ -8,22 +8,23 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function PreSessionPage() {
-  const { session } = useTutorSessionStore();
+  const { sessionId, participantEmail, participantName } =
+    useTutorSessionStore();
   const router = useRouter();
 
   // Redirect to home if no session exists
   useEffect(() => {
-    if (!session) {
+    if (!sessionId) {
       router.push("/");
     }
-  }, [session, router]);
+  }, [sessionId, router]);
 
   const handleContinue = () => {
     router.push("/tutor-session");
   };
 
   // Show loading or empty state if session is not available
-  if (!session) {
+  if (!sessionId) {
     return (
       <main className="h-screen max-h-screen flex items-center justify-center bg-neutral-100">
         <div className="text-center">Redirecting...</div>
@@ -58,13 +59,21 @@ export default function PreSessionPage() {
           <Check className="mr-2" />I understand and wish to continue
         </Button>
 
-        <div className="mt-6 p-4 border rounded bg-white">
-          <p>
-            <strong>Name:</strong> {session.studentName}
-          </p>
-          <p>
-            <strong>Email:</strong> {session.studentEmail}
-          </p>
+        <div className="mt-6 p-4 flex flex-col gap-3 border rounded bg-white text-base">
+          <h2 className="font-semibold">Session Details</h2>
+          <Separator />
+          <div className="flex flex-row">
+            <div className="w-1/4 font-semibold">Name</div>
+            <div className="w-3/4">{participantName}</div>
+          </div>
+          <div className="flex flex-row">
+            <div className="w-1/4 font-semibold">Email</div>
+            <div className="w-3/4">{participantEmail}</div>
+          </div>
+          <div className="flex flex-row">
+            <div className="w-1/4 font-semibold">Session ID</div>
+            <div className="w-3/4">{sessionId}</div>
+          </div>
         </div>
       </div>
     </main>

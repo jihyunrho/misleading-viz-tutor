@@ -1,37 +1,39 @@
 "use client";
 
-import { useEffect, useState } from "react";
-
-import ChatBox from "../components/chat/ChatBox";
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import ChatBox from "@/app/components/chat/ChatBox";
+import BottomBar from "@/app/components/BottomBar";
+import { useTutorSessionStore } from "@/stores/tutorSessionStore";
 
 export default function TutorSessionPage() {
-  const [sessionId, setSessionId] = useState("a1b2c3");
-  const [userEmail, setUserEmail] = useState("user@example.com"); // This would typically come from authentication
+  const router = useRouter();
 
-  return (
+  const { sessionId, currentPage } = useTutorSessionStore();
+  const page = currentPage();
+
+  // Redirect to home if no session exists
+  useEffect(() => {
+    if (!sessionId) {
+      router.push("/");
+    }
+  }, [sessionId, router]);
+
+  return page ? (
     <div className="flex flex-col h-screen max-h-screen overflow-hidden bg-background">
       <div className="bg-amber-600 text-center p-2">
-        <h2>Hello World</h2>
-        The instructions will go here.
+        <h2>Instructions</h2>
+        {page.instruction}
       </div>
       <div className="flex-1 h-full items-center grid grid-cols-2 overflow-hidden">
         <div className="flex flex-col px-4 py-2 overflow-auto">
-          <img src="/images/visualizations/bar1_2.png" alt="Chart 1" />
+          <img src={page.imageSrc} title={page.imageTitle} alt="Chart 1" />
 
           <p className="font-bold mt-4 py-2 border-b-1">
             AI's First (Incorrect) Reasoning
           </p>
 
-          <p className="mt-2">
-            Wow, the number of bicycles sold has skyrocketed dramatically from
-            2017 to 2021! It looks like the sales have increased by a huge
-            percentage each year. This must mean that biking is becoming
-            incredibly popular, and the demand has exploded almost overnight!
-          </p>
+          <p className="mt-2">{page.firstIncorrectReasoning}</p>
         </div>
 
         <div className="flex h-full overflow-hidden">
@@ -39,38 +41,9 @@ export default function TutorSessionPage() {
         </div>
       </div>
 
-      <footer className="bg-neutral-800 text-neutral-300 text-center py-2 px-4 flex items-center justify-between">
-        <div className="flex flex-row items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Badge className="bg-neutral-700 text-neutral-300 rounded-xs">
-              Email
-            </Badge>
-            <span className="text-sm text-neutral-400">{userEmail}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge className="bg-neutral-700 text-neutral-300 rounded-xs">
-              Session ID
-            </Badge>
-            <span className="text-sm text-neutral-400">{sessionId}</span>
-          </div>
-        </div>
-        <div className="flex flex-row items-center gap-2">
-          <span className="text-xs">Progress</span>
-          <div>
-            <Progress
-              value={30}
-              className="w-32 h-2 [&>*]:bg-green-500 bg-neutral-600"
-            />
-          </div>
-        </div>
-
-        <Button
-          variant="secondary"
-          className="flex items-center gap-2 rounded-xs cursor-pointer"
-        >
-          Next Graph <ArrowRight className="h-4 w-4" />
-        </Button>
-      </footer>
+      <BottomBar />
     </div>
+  ) : (
+    <div>Invalid Page</div>
   );
 }

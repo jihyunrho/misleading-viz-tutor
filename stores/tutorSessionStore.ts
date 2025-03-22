@@ -1,6 +1,5 @@
 "use client";
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 
 export type ChatMessage = {
   role: "user" | "bot";
@@ -39,7 +38,11 @@ type TutorSessionStore = {
   nextPage: () => void;
   prevPage: () => void;
   updateInstruction: (instruction: string) => void;
+  currentPage: () => TutorPage | null;
+  currentPageNumber: () => number;
+  isLastPage: () => boolean;
   resetSession: () => void;
+  endSession: () => void;
 };
 
 const initialState = {
@@ -52,91 +55,95 @@ const initialState = {
   currentPageIndex: 0,
 };
 
-export const useTutorSessionStore = create<TutorSessionStore>()(
-  persist(
-    (set, get) => ({
-      ...initialState,
+export const useTutorSessionStore = create<TutorSessionStore>((set, get) => ({
+  ...initialState,
 
-      setSession: (session) => {
-        set((state) => ({
-          ...state,
-          ...session,
-          startTime:
-            state.startTime || session.startTime || new Date().toISOString(),
-        }));
-      },
+  setSession: (session) => {
+    set((state) => ({
+      ...state,
+      ...session,
+      startTime:
+        state.startTime || session.startTime || new Date().toISOString(),
+    }));
+  },
 
-      addMessage: (message) => {
-        const { pages, currentPageIndex } = get();
+  addMessage: (message) => {
+    const currentPage = get().currentPage();
 
-        if (pages.length === 0 || currentPageIndex >= pages.length) {
-          console.warn("Tried to add message, but no pages exist.");
-          return;
-        }
-
-        const updatedPages = [...pages];
-        const currentPage = { ...updatedPages[currentPageIndex] };
-
-        currentPage.messages = [...(currentPage.messages || []), message];
-        updatedPages[currentPageIndex] = currentPage;
-
-        set({ pages: updatedPages });
-      },
-
-      // 🆕 Derived getter
-      currentPage: () => {
-        const { pages, currentPageIndex } = get();
-        return pages.length > 0 && currentPageIndex < pages.length
-          ? pages[currentPageIndex]
-          : null;
-      },
-
-      nextPage: () => {
-        const { currentPageIndex, pages } = get();
-
-        if (currentPageIndex < pages.length - 1) {
-          set({ currentPageIndex: currentPageIndex + 1 });
-        }
-      },
-
-      prevPage: () => {
-        const { currentPageIndex } = get();
-
-        if (currentPageIndex > 0) {
-          set({ currentPageIndex: currentPageIndex - 1 });
-        }
-      },
-
-      updateInstruction: (instruction) => {
-        const { pages, currentPageIndex } = get();
-
-        if (pages.length === 0 || currentPageIndex >= pages.length) {
-          console.warn("Tried to update instruction, but no pages exist.");
-          return;
-        }
-
-        if (pages.length === 0 || currentPageIndex >= pages.length) {
-          return;
-        }
-
-        const updatedPages = [...pages];
-        const currentPage = { ...updatedPages[currentPageIndex] };
-
-        currentPage.instruction = instruction;
-        updatedPages[currentPageIndex] = currentPage;
-
-        set({ pages: updatedPages });
-      },
-
-      endSession: () => set({ endTime: new Date().toISOString() }),
-
-      resetSession: () => {
-        set({ ...initialState });
-      },
-    }),
-    {
-      name: "tutor-session-storage",
-      skipHydration: true,
+    if (!currentPage) {
+      console.warn("Tried to add message, but no current page exists.");
+      return;
     }
-  )
-);
+
+    const { pages, currentPageIndex } = get();
+    const updatedPages = [...pages];
+
+    updatedPages[currentPageIndex] = {
+      ...currentPage,
+      messages: [...(currentPage.messages || []), message],
+    };
+
+    set({ pages: updatedPages });
+  },
+
+  nextPage: () => {
+    const { currentPageIndex, pages } = get();
+    if (currentPageIndex < pages.length - 1) {
+      set({ currentPageIndex: currentPageIndex + 1 });
+    }
+  },
+
+  prevPage: () => {
+    const { currentPageIndex } = get();
+    if (currentPageIndex > 0) {
+      set({ currentPageIndex: currentPageIndex - 1 });
+    }
+  },
+
+  updateInstruction: (instruction) => {
+    const currentPage = get().currentPage();
+
+    if (!currentPage) {
+      console.warn("Tried to update instruction, but no current page exists.");
+      return;
+    }
+
+    const { pages, currentPageIndex } = get();
+    const updatedPages = [...pages];
+
+    updatedPages[currentPageIndex] = {
+      ...currentPage,
+      instruction,
+    };
+
+    set({ pages: updatedPages });
+  },
+
+  // Derived getter
+  currentPage: () => {
+    const { pages, currentPageIndex } = get();
+    return pages.length > 0 && currentPageIndex < pages.length
+      ? pages[currentPageIndex]
+      : null;
+  },
+
+  currentPageNumber: () => {
+    const { pages, currentPageIndex } = get();
+    return pages.length > 0 && currentPageIndex < pages.length
+      ? currentPageIndex + 1
+      : -1;
+  },
+
+  isLastPage: () => {
+    const { pages, currentPageIndex } = get();
+    return currentPageIndex === pages.length - 1;
+  },
+
+  resetSession: () => {
+    set({ ...initialState });
+  },
+
+  endSession: () => {
+    set({ endTime: new Date().toISOString() });
+  },
+}));

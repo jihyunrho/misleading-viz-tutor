@@ -1,7 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 export default function PostSessionPage() {
@@ -20,10 +18,7 @@ export default function PostSessionPage() {
           a participant after responding to the questions.
         </p>
 
-        <p className="mt-4">
-          You will be redirected to the tutor session page after clicking the
-          button below.
-        </p>
+        <p className="mt-4">Bye.</p>
       </div>
     </main>
   );
