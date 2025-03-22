@@ -24,6 +24,7 @@ export function getTutorPages(): TutorPage[] {
     instruction: `Explain why the chart titled "${image.imageTitle}" is misleading because of its ${image.misleadingFeature}.`,
     imageTitle: image.imageTitle,
     imageSrc: image.imageSrc,
+    misleadingFeature: image.misleadingFeature,
     firstIncorrectReasoning: null,
     messages: [],
   }));

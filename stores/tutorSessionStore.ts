@@ -12,6 +12,7 @@ export type TutorPage = {
   instruction: string;
   imageTitle: string;
   imageSrc: string;
+  misleadingFeature: string;
   firstIncorrectReasoning: string | null;
   messages: ChatMessage[];
 };
@@ -38,6 +39,7 @@ type TutorSessionStore = {
   nextPage: () => void;
   prevPage: () => void;
   updateInstruction: (instruction: string) => void;
+  updateCurrentPage: (pageUpdates: Partial<TutorPage>) => void;
   currentPage: () => TutorPage | null;
   currentPageNumber: () => number;
   isLastPage: () => boolean;
@@ -114,6 +116,25 @@ export const useTutorSessionStore = create<TutorSessionStore>((set, get) => ({
     updatedPages[currentPageIndex] = {
       ...currentPage,
       instruction,
+    };
+
+    set({ pages: updatedPages });
+  },
+
+  updateCurrentPage: (pageUpdates: Partial<TutorPage>) => {
+    const currentPage = get().currentPage();
+
+    if (!currentPage) {
+      console.warn("Tried to update page, but no current page exists.");
+      return;
+    }
+
+    const { pages, currentPageIndex } = get();
+    const updatedPages = [...pages];
+
+    updatedPages[currentPageIndex] = {
+      ...currentPage,
+      ...pageUpdates,
     };
 
     set({ pages: updatedPages });

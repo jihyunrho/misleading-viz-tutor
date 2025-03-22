@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import ChatBox from "@/app/components/chat/ChatBox";
 import BottomBar from "@/app/components/BottomBar";
 import { useTutorSessionStore } from "@/stores/tutorSessionStore";
+import ChartDisplay from "@/app/components/ChartDisplay";
 
 export default function TutorSessionPage() {
   const router = useRouter();
@@ -27,13 +28,7 @@ export default function TutorSessionPage() {
       </div>
       <div className="flex-1 h-full items-center grid grid-cols-2 overflow-hidden">
         <div className="flex flex-col px-4 py-2 overflow-auto">
-          <img src={page.imageSrc} title={page.imageTitle} alt="Chart 1" />
-
-          <p className="font-bold mt-4 py-2 border-b-1">
-            AI's First (Incorrect) Reasoning
-          </p>
-
-          <p className="mt-2">{page.firstIncorrectReasoning}</p>
+          <ChartDisplay />
         </div>
 
         <div className="flex h-full overflow-hidden">
