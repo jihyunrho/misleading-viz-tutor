@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTutorSessionStore } from "@/stores/tutorSessionStore";
 import getInitialIncorrectReasoning from "@/app/actions/getInitialIncorrectReasoning";
+import { Skeleton } from "@/components/ui/skeleton";
+import LoadingDots from "./chat/LoadingDots";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function ChartDisplay() {
   const router = useRouter();
@@ -48,17 +51,27 @@ export default function ChartDisplay() {
 
   return page ? (
     <>
-      <img src={page.imageSrc} title={page.imageTitle} alt="Chart 1" />
+      <img src={page.imageSrc} title={page.imageTitle} alt={page.imageTitle} />
 
-      <p className="font-bold mt-4 py-2 border-b-1">
-        AI's First (Incorrect) Reasoning
-      </p>
+      <div className="bg-neutral-50 px-8 py-6 rounded-xs">
+        <h3 className="flex text-neutral-800 justify-between font-bold pb-2 border-b-1">
+          <p>AI's First (Incorrect) Reasoning</p>
+          {loading && <Spinner size="xs" />}
+        </h3>
 
-      {loading ? (
-        <p className="mt-2">Loading AI reasoning...</p>
-      ) : (
-        <p className="mt-2">{page.firstIncorrectReasoning}</p>
-      )}
+        {loading ? (
+          <>
+            <Skeleton className="mt-4 bg-neutral-300 w-3/4 h-6 rounded-sm" />
+            <Skeleton className="mt-2 bg-neutral-300 w-3/4 h-6 rounded-sm" />
+            <Skeleton className="mt-2 bg-neutral-300 w-3/4 h-6 rounded-sm" />
+            <Skeleton className="mt-2 bg-neutral-300 w-1/4 h-6 rounded-sm" />
+          </>
+        ) : (
+          <p className="mt-3 text-base text-neutral-700">
+            {page.firstIncorrectReasoning}
+          </p>
+        )}
+      </div>
     </>
   ) : (
     <div>Invalid Page</div>

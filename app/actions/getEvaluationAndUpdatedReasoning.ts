@@ -6,15 +6,18 @@ import OpenAI from "openai";
 
 /**
  * Server-side function to send a graph image to OpenAI for analysis
- * @param imagePath URL of the image to analyze
+ * @param imageUrl URL of the image to analyze
  * @param misleadingFeature The type of misleading feature in the visualization
  * @returns The AI's interpretation of the visualization
  */
-export default async function getInitialIncorrectReasoning(
+export default async function getEvaluationAndUpdatedReasoning(
   imagePath: string,
-  misleadingFeature: string
+  misleadingFeature: string,
+  aiIncorrectReasoning: string,
+  userCorrection: string
 ): Promise<string> {
   try {
+    // Get API key from environment variables
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
       throw new Error("OpenAI API key not found in environment variables");
@@ -35,15 +38,15 @@ export default async function getInitialIncorrectReasoning(
         {
           role: "system",
           content:
-            "You are an AI assistant that generates interpretations of data visualizations. \
-            You fail to realize the existince of the misleading features within the graph and being deceived from the misleading visual features.",
+            "You are a tutor AI who evaluates corrections and improves the reasoning accordingly.",
         },
         {
           role: "user",
           content: [
             {
               type: "text",
-              text: `Provide a quick incorrect reasoning as the person who was severly deceived by the impact of ${misleadingFeature}.`,
+              text: `AI's incorrect reasoning was: \"${aiIncorrectReasoning}\". The user provided the correction: \"${userCorrection}\". \
+              First, evaluate the correction and give feedback in one sentence. Then revise the reasoning accordingly.`,
             },
             {
               type: "image_url",
@@ -52,13 +55,13 @@ export default async function getInitialIncorrectReasoning(
           ],
         },
       ],
-      temperature: 0.7,
-      max_tokens: 300,
+      temperature: 0.5,
     });
 
     // Extract the AI's message
     const aiMessage =
-      response.choices[0]?.message?.content || "Error generating reasoning.";
+      response.choices[0]?.message?.content ||
+      "Error generating a response from OpenAI.";
 
     return aiMessage;
   } catch (error) {

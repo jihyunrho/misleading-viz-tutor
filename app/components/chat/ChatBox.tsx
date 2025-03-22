@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Send } from "lucide-react";
+import { MessageSquare, Send } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { Bot, User as UserIcon } from "lucide-react";
 import LoadingDots from "./LoadingDots";
+import { Badge } from "@/components/ui/badge";
 
 interface ChatBoxProps {
   // Define your props here
@@ -76,14 +77,15 @@ const ChatBox: React.FC<ChatBoxProps> = (props) => {
 
   return (
     <div className="flex h-full flex-col border-l">
-      <div className="">
-        <h3 className="text-lg font-semibold leading-none border-b mx-4 mt-1 py-2">
+      <div className="px-4 py-2">
+        <Badge className="rounded-xs">
+          <MessageSquare />
           Chat
-        </h3>
+        </Badge>
       </div>
 
       <div className="flex-1 overflow-hidden p-0">
-        <ScrollArea className="h-full p-4" ref={scrollAreaRef}>
+        <ScrollArea className="h-full p-4 pt-2" ref={scrollAreaRef}>
           <div className="flex flex-col gap-3">
             {messages.map((message) => (
               <div
