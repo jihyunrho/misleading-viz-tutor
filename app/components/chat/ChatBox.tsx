@@ -7,9 +7,12 @@ import { cn } from "@/lib/utils";
 import { Bot, User as UserIcon } from "lucide-react";
 import LoadingDots from "./LoadingDots";
 import { Badge } from "@/components/ui/badge";
+import { ChatMessage } from "@/stores/tutorSessionStore";
 
 interface ChatBoxProps {
   // Define your props here
+  messages: ChatMessage[];
+  onSendMessage: (message: string) => void;
 }
 
 interface Message {
