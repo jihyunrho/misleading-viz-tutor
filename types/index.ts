@@ -5,6 +5,7 @@ export type ChatMessage = {
 };
 
 export type TutorPage = {
+  instruction: string;
   visualizationImage: VisualizationImage;
   firstIncorrectReasoning: string | null;
   messages: ChatMessage[];

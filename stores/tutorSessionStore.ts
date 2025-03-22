@@ -10,6 +10,7 @@ type TutorSessionState = {
   addMessage: (message: ChatMessage) => void;
   nextPage: () => void;
   prevPage: () => void;
+  updateInstruction: (instruction: string) => void;
 };
 
 export const useTutorSessionStore = create<TutorSessionState>((set, get) => ({
@@ -30,6 +31,29 @@ export const useTutorSessionStore = create<TutorSessionState>((set, get) => ({
     const updatedPage: TutorPage = {
       ...currentPage,
       messages: [...currentPage.messages, message],
+    };
+
+    updatedPages[currentPageIndex] = updatedPage;
+
+    set({
+      session: {
+        ...session,
+        pages: updatedPages,
+      },
+    });
+  },
+
+  updateInstruction: (instruction: string) => {
+    const session = get().session;
+    if (!session) return;
+
+    const { currentPageIndex, pages } = session;
+    const updatedPages = [...pages];
+    const currentPage = updatedPages[currentPageIndex];
+
+    const updatedPage: TutorPage = {
+      ...currentPage,
+      instruction,
     };
 
     updatedPages[currentPageIndex] = updatedPage;
