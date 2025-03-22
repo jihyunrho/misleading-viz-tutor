@@ -1,0 +1,44 @@
+"use client";
+
+import ChatBox from "../components/chat/ChatBox";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+
+export default function BottomBar() {
+  return (
+    <footer className="bg-neutral-800 text-neutral-300 text-center py-2 px-4 flex items-center justify-between">
+      <div className="flex flex-row items-center gap-4">
+        <div className="flex items-center gap-2">
+          <Badge className="bg-neutral-700 text-neutral-300 rounded-xs">
+            Email
+          </Badge>
+          <span className="text-sm text-neutral-400">{userEmail}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge className="bg-neutral-700 text-neutral-300 rounded-xs">
+            Session ID
+          </Badge>
+          <span className="text-sm text-neutral-400">{sessionId}</span>
+        </div>
+      </div>
+      <div className="flex flex-row items-center gap-2">
+        <span className="text-xs">Progress</span>
+        <div>
+          <Progress
+            value={30}
+            className="w-32 h-2 [&>*]:bg-green-500 bg-neutral-600"
+          />
+        </div>
+      </div>
+
+      <Button
+        variant="secondary"
+        className="flex items-center gap-2 rounded-xs cursor-pointer"
+      >
+        Next Graph <ArrowRight className="h-4 w-4" />
+      </Button>
+    </footer>
+  );
+}

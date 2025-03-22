@@ -39,7 +39,7 @@ export default function TutorSessionPage() {
         </div>
       </div>
 
-      <div className="bg-neutral-800 text-neutral-300 text-center py-2 px-4 flex items-center justify-between">
+      <footer className="bg-neutral-800 text-neutral-300 text-center py-2 px-4 flex items-center justify-between">
         <div className="flex flex-row items-center gap-4">
           <div className="flex items-center gap-2">
             <Badge className="bg-neutral-700 text-neutral-300 rounded-xs">
@@ -70,7 +70,7 @@ export default function TutorSessionPage() {
         >
           Next Graph <ArrowRight className="h-4 w-4" />
         </Button>
-      </div>
+      </footer>
     </div>
   );
 }

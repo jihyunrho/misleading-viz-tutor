@@ -1,101 +1,142 @@
 "use client";
-
-import { ChatMessage, TutorPage, TutorSession } from "@/types";
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
+
+export type ChatMessage = {
+  role: "user" | "bot";
+  type: "user" | "bot-reasoning" | "bot-evaluation";
+  content: string;
+  createdAt: string;
+};
+
+export type TutorPage = {
+  instruction: string;
+  imageTitle: string;
+  imageSrc: string;
+  firstIncorrectReasoning: string | null;
+  messages: ChatMessage[];
+};
+
+export type TutorSession = {
+  sessionId: string;
+  participantName: string;
+  participantEmail: string;
+  pages: TutorPage[];
+  currentPageIndex: number;
+};
 
 // Store type
-type TutorSessionState = {
-  session: TutorSession | null;
-  setSession: (session: TutorSession) => void;
+type TutorSessionStore = {
+  sessionId: string;
+  participantName: string;
+  participantEmail: string;
+  startTime: string;
+  endTime: string;
+  pages: TutorPage[];
+  currentPageIndex: number;
+  setSession: (session: Partial<TutorSessionStore>) => void;
   addMessage: (message: ChatMessage) => void;
   nextPage: () => void;
   prevPage: () => void;
   updateInstruction: (instruction: string) => void;
+  resetSession: () => void;
 };
 
-export const useTutorSessionStore = create<TutorSessionState>((set, get) => ({
-  session: null,
+const initialState = {
+  sessionId: "",
+  participantName: "",
+  participantEmail: "",
+  startTime: "",
+  endTime: "",
+  pages: [],
+  currentPageIndex: 0,
+};
 
-  setSession: (session: TutorSession) => {
-    set({ session });
-  },
+export const useTutorSessionStore = create<TutorSessionStore>()(
+  persist(
+    (set, get) => ({
+      ...initialState,
 
-  addMessage: (message: ChatMessage) => {
-    const session = get().session;
-    if (!session) return;
-
-    const { currentPageIndex, pages } = session;
-    const updatedPages = [...pages];
-    const currentPage = updatedPages[currentPageIndex];
-
-    const updatedPage: TutorPage = {
-      ...currentPage,
-      messages: [...currentPage.messages, message],
-    };
-
-    updatedPages[currentPageIndex] = updatedPage;
-
-    set({
-      session: {
-        ...session,
-        pages: updatedPages,
+      setSession: (session) => {
+        set((state) => ({
+          ...state,
+          ...session,
+          startTime:
+            state.startTime || session.startTime || new Date().toISOString(),
+        }));
       },
-    });
-  },
 
-  updateInstruction: (instruction: string) => {
-    const session = get().session;
-    if (!session) return;
+      addMessage: (message) => {
+        const { pages, currentPageIndex } = get();
 
-    const { currentPageIndex, pages } = session;
-    const updatedPages = [...pages];
-    const currentPage = updatedPages[currentPageIndex];
+        if (pages.length === 0 || currentPageIndex >= pages.length) {
+          console.warn("Tried to add message, but no pages exist.");
+          return;
+        }
 
-    const updatedPage: TutorPage = {
-      ...currentPage,
-      instruction,
-    };
+        const updatedPages = [...pages];
+        const currentPage = { ...updatedPages[currentPageIndex] };
 
-    updatedPages[currentPageIndex] = updatedPage;
+        currentPage.messages = [...(currentPage.messages || []), message];
+        updatedPages[currentPageIndex] = currentPage;
 
-    set({
-      session: {
-        ...session,
-        pages: updatedPages,
+        set({ pages: updatedPages });
       },
-    });
-  },
 
-  nextPage: () => {
-    const session = get().session;
-    if (!session) return;
-
-    const nextIndex = Math.min(
-      session.currentPageIndex + 1,
-      session.pages.length - 1
-    );
-    if (nextIndex === session.currentPageIndex) return; // already at last page
-
-    set({
-      session: {
-        ...session,
-        currentPageIndex: nextIndex,
+      // 🆕 Derived getter
+      currentPage: () => {
+        const { pages, currentPageIndex } = get();
+        return pages.length > 0 && currentPageIndex < pages.length
+          ? pages[currentPageIndex]
+          : null;
       },
-    });
-  },
 
-  prevPage: () => {
-    const session = get().session;
-    if (!session) return;
+      nextPage: () => {
+        const { currentPageIndex, pages } = get();
 
-    const prevIndex = Math.max(session.currentPageIndex - 1, 0);
-    if (prevIndex === session.currentPageIndex) return; // already at first page
-
-    set({
-      session: {
-        ...session,
-        currentPageIndex: prevIndex,
+        if (currentPageIndex < pages.length - 1) {
+          set({ currentPageIndex: currentPageIndex + 1 });
+        }
       },
-    });
-  },
-}));
+
+      prevPage: () => {
+        const { currentPageIndex } = get();
+
+        if (currentPageIndex > 0) {
+          set({ currentPageIndex: currentPageIndex - 1 });
+        }
+      },
+
+      updateInstruction: (instruction) => {
+        const { pages, currentPageIndex } = get();
+
+        if (pages.length === 0 || currentPageIndex >= pages.length) {
+          console.warn("Tried to update instruction, but no pages exist.");
+          return;
+        }
+
+        if (pages.length === 0 || currentPageIndex >= pages.length) {
+          return;
+        }
+
+        const updatedPages = [...pages];
+        const currentPage = { ...updatedPages[currentPageIndex] };
+
+        currentPage.instruction = instruction;
+        updatedPages[currentPageIndex] = currentPage;
+
+        set({ pages: updatedPages });
+      },
+
+      endSession: () => set({ endTime: new Date().toISOString() }),
+
+      resetSession: () => {
+        set({ ...initialState });
+      },
+    }),
+    {
+      name: "tutor-session-storage",
+      skipHydration: true,
+    }
+  )
+);

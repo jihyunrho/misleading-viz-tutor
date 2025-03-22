@@ -1,13 +1,68 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Hourglass, Info, Timer } from "lucide-react";
+import { ArrowRight, Info } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { useTutorSessionStore } from "@/stores/tutorSessionStore";
+import { generateRandomTutorSessionId } from "@/lib/utils";
 
 export default function Home() {
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [errors, setErrors] = useState({ name: "", email: "" });
+  const router = useRouter();
+  const { setSession } = useTutorSessionStore();
+
+  const validateEmail = (email: string): boolean => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Reset errors
+    const newErrors = { name: "", email: "" };
+    let hasError = false;
+
+    // Validate name
+    if (!name.trim()) {
+      newErrors.name = "Name is required";
+      hasError = true;
+    }
+
+    // Validate email
+    if (!email.trim()) {
+      newErrors.email = "Email is required";
+      hasError = true;
+    } else if (!validateEmail(email)) {
+      newErrors.email = "Please enter a valid email";
+      hasError = true;
+    }
+
+    setErrors(newErrors);
+
+    // If no errors, proceed
+    if (!hasError) {
+      // Initialize the tutor session
+      const sessionId = generateRandomTutorSessionId();
+      setSession({
+        sessionId,
+        participantEmail: email,
+        pages: [],
+        currentPageIndex: 0,
+      });
+
+      // Navigate to pre-session page
+      router.push("/pre-session");
+    }
+  };
+
   return (
     <div className="flex flex-col h-screen max-h-screen bg-background">
       <div className="flex-1 h-full grid grid-cols-2">
@@ -36,7 +91,7 @@ export default function Home() {
         </div>
 
         <div className="flex flex-col h-screen justify-center p-8 overflow-y-scroll">
-          <div className="grid gap-6">
+          <form onSubmit={handleSubmit} className="grid gap-6">
             <div className="grid gap-2">
               <Label htmlFor="name">Name</Label>
               <Input
@@ -44,8 +99,13 @@ export default function Home() {
                 type="text"
                 placeholder="John Doe"
                 className="rounded-xs"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 required
               />
+              {errors.name && (
+                <p className="text-sm text-red-500">{errors.name}</p>
+              )}
             </div>
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
@@ -54,8 +114,13 @@ export default function Home() {
                 type="email"
                 placeholder="your@email.com"
                 className="rounded-xs"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
+              {errors.email && (
+                <p className="text-sm text-red-500">{errors.email}</p>
+              )}
             </div>
 
             <Button
@@ -64,7 +129,7 @@ export default function Home() {
             >
               Start Tutor Session <ArrowRight className="h-4 w-4" />
             </Button>
-          </div>
+          </form>
         </div>
       </div>
     </div>
