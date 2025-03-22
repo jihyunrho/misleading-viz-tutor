@@ -14,6 +14,7 @@ export default function BottomBar() {
     sessionId,
     participantEmail,
     currentPageIndex,
+    currentPageNumber,
     pages,
     nextPage,
     isLastPage,
@@ -45,7 +46,9 @@ export default function BottomBar() {
         </div>
       </div>
       <div className="flex flex-row items-center gap-2">
-        <span className="text-xs">Progress</span>
+        <span className="text-xs">
+          Page {currentPageNumber()} / {pages.length}
+        </span>
         <div>
           <Progress
             value={

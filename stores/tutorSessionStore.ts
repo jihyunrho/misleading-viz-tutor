@@ -17,24 +17,23 @@ export type TutorPage = {
   messages: ChatMessage[];
 };
 
-export type TutorSession = {
+// Core session data
+export type TutorSessionData = {
   sessionId: string;
+  ipAddr: string | null;
+  userAgent: string | null;
   participantName: string;
   participantEmail: string;
+  startTime: string;
+  endTime: string | null;
   pages: TutorPage[];
   currentPageIndex: number;
 };
 
-// Store type
-type TutorSessionStore = {
-  sessionId: string;
-  participantName: string;
-  participantEmail: string;
-  startTime: string;
-  endTime: string;
-  pages: TutorPage[];
-  currentPageIndex: number;
-  setSession: (session: Partial<TutorSessionStore>) => void;
+// Store type extends the data with methods
+type TutorSessionStore = TutorSessionData & {
+  // Methods
+  setSession: (session: Partial<TutorSessionData>) => void;
   addMessage: (message: ChatMessage) => void;
   nextPage: () => void;
   prevPage: () => void;
@@ -45,14 +44,17 @@ type TutorSessionStore = {
   isLastPage: () => boolean;
   resetSession: () => void;
   endSession: () => void;
+  getSessionData: () => TutorSessionData;
 };
 
-const initialState = {
+const initialState: TutorSessionData = {
   sessionId: "",
+  ipAddr: null,
+  userAgent: null,
   participantName: "",
   participantEmail: "",
   startTime: "",
-  endTime: "",
+  endTime: null,
   pages: [],
   currentPageIndex: 0,
 };
@@ -166,5 +168,20 @@ export const useTutorSessionStore = create<TutorSessionStore>((set, get) => ({
 
   endSession: () => {
     set({ endTime: new Date().toISOString() });
+  },
+
+  getSessionData: () => {
+    const state = get();
+    return {
+      sessionId: state.sessionId,
+      ipAddr: state.ipAddr,
+      userAgent: state.userAgent,
+      participantName: state.participantName,
+      participantEmail: state.participantEmail,
+      startTime: state.startTime,
+      endTime: state.endTime,
+      pages: state.pages,
+      currentPageIndex: state.currentPageIndex,
+    };
   },
 }));

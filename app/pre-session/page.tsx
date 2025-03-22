@@ -6,25 +6,33 @@ import { Separator } from "@/components/ui/separator";
 import { useTutorSessionStore } from "@/stores/tutorSessionStore";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { logUserAction } from "@/app/actions/logUserAction";
 
 export default function PreSessionPage() {
-  const { sessionId, participantEmail, participantName } =
-    useTutorSessionStore();
+  const { getSessionData } = useTutorSessionStore();
   const router = useRouter();
+
+  const sessionData = getSessionData();
 
   // Redirect to home if no session exists
   useEffect(() => {
-    if (!sessionId) {
+    if (!sessionData.sessionId) {
       router.push("/");
     }
-  }, [sessionId, router]);
+  }, [sessionData.sessionId, router]);
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
+    await logUserAction({
+      sessionData,
+      pageTitle: "Pre-session",
+      action: `The participant clicked the continue button on the pre-session page.`,
+    });
+
     router.push("/tutor-session");
   };
 
   // Show loading or empty state if session is not available
-  if (!sessionId) {
+  if (!sessionData.sessionId) {
     return (
       <main className="h-screen max-h-screen flex items-center justify-center bg-neutral-100">
         <div className="text-center">Redirecting...</div>
@@ -64,15 +72,15 @@ export default function PreSessionPage() {
           <Separator />
           <div className="flex flex-row">
             <div className="w-1/4 font-semibold">Name</div>
-            <div className="w-3/4">{participantName}</div>
+            <div className="w-3/4">{sessionData.participantName}</div>
           </div>
           <div className="flex flex-row">
             <div className="w-1/4 font-semibold">Email</div>
-            <div className="w-3/4">{participantEmail}</div>
+            <div className="w-3/4">{sessionData.participantEmail}</div>
           </div>
           <div className="flex flex-row">
             <div className="w-1/4 font-semibold">Session ID</div>
-            <div className="w-3/4">{sessionId}</div>
+            <div className="w-3/4">{sessionData.sessionId}</div>
           </div>
         </div>
       </div>

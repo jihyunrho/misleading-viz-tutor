@@ -9,18 +9,21 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { useTutorSessionStore } from "@/stores/tutorSessionStore";
-import { generateRandomTutorSessionId } from "@/lib/utils";
 import { getTutorPages } from "@/data/visualization-images";
+import createTutorSession from "@/app/actions/createTutorSession";
+import { logUserAction } from "@/app/actions/logUserAction";
 
 export default function Home() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [errors, setErrors] = useState({ name: "", email: "" });
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { setSession } = useTutorSessionStore();
+  const { getSessionData, setSession } = useTutorSessionStore();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
 
     // Reset errors
     const newErrors = { name: "", email: "" };
@@ -28,21 +31,53 @@ export default function Home() {
 
     console.log(`name: ${name}, email: ${email}`);
 
-    // Server validation later
+    const participantUserAgent = navigator.userAgent;
+    console.log("User Agent:", participantUserAgent);
 
-    // If no errors, proceed
-    if (!hasError) {
-      // Initialize the tutor session
+    // FETCH user IP address using the http://ip-api.com/json/ endpoint
+    const response = await fetch("http://ip-api.com/json/");
+    const data = await response.json();
+    console.log();
+
+    const participantIpAddr = data.query;
+    console.log("Location:", data.city, data.country);
+
+    // ADD A NEW ROW TO THE TUTOR_SESSIONS TABLE
+    const createResult = await createTutorSession({
+      participantName: name,
+      participantEmail: email,
+    });
+
+    if (createResult.success && createResult.data) {
+      const sessionId = createResult.data.sessionId;
+
       setSession({
-        sessionId: generateRandomTutorSessionId(),
+        sessionId,
+        ipAddr: participantIpAddr,
+        userAgent: participantUserAgent,
         participantName: name,
         participantEmail: email,
         pages: getTutorPages(),
       });
 
+      const sessionData = getSessionData();
+
+      await logUserAction({
+        sessionData,
+        pageTitle: "Home",
+        action: `Started Tutor Session ID ${sessionId} with name: ${name} and email: ${email}`,
+      });
+    }
+
+    // If no errors, proceed
+    if (!hasError) {
+      // Initialize the tutor session
+
       // Navigate to pre-session page
       router.push("/pre-session");
     }
+
+    setIsLoading(false);
   };
 
   return (
@@ -108,6 +143,7 @@ export default function Home() {
             <Button
               type="submit"
               className="flex items-center gap-2 rounded-xs cursor-pointer bg-slate-900"
+              disabled={isLoading}
             >
               Start Tutor Session <ArrowRight className="h-4 w-4" />
             </Button>
