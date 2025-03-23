@@ -34,13 +34,26 @@ export default function Home() {
     const participantUserAgent = navigator.userAgent;
     console.log("User Agent:", participantUserAgent);
 
-    // FETCH user IP address using the http://ip-api.com/json/ endpoint
-    const response = await fetch("http://ip-api.com/json/");
-    const data = await response.json();
-    console.log();
+    // FETCH user IP address with CORS enabled
+    let participantIpAddr = "unknown";
+    try {
+      const response = await fetch("http://ip-api.com/json/", {
+        mode: "cors",
+        headers: {
+          Accept: "application/json",
+        },
+      });
 
-    const participantIpAddr = data.query;
-    console.log("Location:", data.city, data.country);
+      if (response.ok) {
+        const data = await response.json();
+        participantIpAddr = data.query;
+        console.log("Location:", data.city, data.country);
+      } else {
+        console.error("Failed to fetch IP information:", response.status);
+      }
+    } catch (error) {
+      console.error("Error fetching IP information:", error);
+    }
 
     // ADD A NEW ROW TO THE TUTOR_SESSIONS TABLE
     const createResult = await createTutorSession({
