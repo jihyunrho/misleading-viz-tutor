@@ -64,7 +64,7 @@ export default function BottomBar() {
         <div>
           <Progress
             value={
-              pages.length > 0 ? (currentPageIndex / pages.length) * 100 : 0
+              pages.length > 0 ? (currentPageNumber() / pages.length) * 100 : 0
             }
             className="w-32 h-2 [&>*]:bg-green-500 bg-neutral-600"
           />
