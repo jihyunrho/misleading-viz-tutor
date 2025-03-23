@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { useTutorSessionStore } from "@/stores/tutorSessionStore";
 import { getTutorPages } from "@/lib/generate-tutor-pages-data";
 import createTutorSession from "@/app/actions/createTutorSession";
-import { logUserAction } from "@/app/actions/logUserAction";
+import logUserAction from "@/app/actions/logUserAction";
 
 export default function Home() {
   const [name, setName] = useState("");

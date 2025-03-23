@@ -7,12 +7,13 @@ import getInitialIncorrectReasoning from "@/app/actions/getInitialIncorrectReaso
 import { Skeleton } from "@/components/ui/skeleton";
 import LoadingDots from "./chat/LoadingDots";
 import { Spinner } from "@/components/ui/spinner";
+import logUserAction from "@/app/actions/logUserAction";
 
 export default function ChartDisplay() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  const { getSessionData, currentPage, updateCurrentPage } =
+  const { getSessionData, currentPage, currentPageNumber, updateCurrentPage } =
     useTutorSessionStore();
   const sessionData = getSessionData();
   const page = currentPage();
@@ -35,12 +36,19 @@ export default function ChartDisplay() {
       ) {
         setLoading(true);
         try {
-          const reasoning = await getInitialIncorrectReasoning(
-            page.imageTitle,
-            page.imageSrc,
-            page.misleadingFeature
-          );
+          const reasoning = await getInitialIncorrectReasoning({
+            imageSrc: page.imageSrc,
+            imageTitle: page.imageTitle,
+            misleadingFeature: page.misleadingFeature,
+          });
           updateCurrentPage({ firstIncorrectReasoning: reasoning });
+
+          // No need to await
+          logUserAction({
+            sessionData,
+            pageTitle: `Page ${currentPageNumber()} - ${page.imageTitle}`,
+            action: `The AI has generated the first incorrect reasoning for the image "${page.imageTitle}". The reasoning is: "${reasoning}".`,
+          });
         } catch (error) {
           console.error("Failed to get AI reasoning:", error);
         } finally {

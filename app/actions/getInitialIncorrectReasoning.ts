@@ -7,19 +7,32 @@ import { db } from "@/db";
 import { eq } from "drizzle-orm";
 import { visualizationImagesTable } from "@/db/schema";
 
+type FunctionParams = {
+  imageTitle: string;
+  imageSrc: string;
+  misleadingFeature: string;
+};
+
 /**
- * Server-side function to send a graph image to OpenAI for analysis
- * @param imageTitle Image title
- * @param imageSrc URL of the image to analyze
- * @param misleadingFeature The type of misleading feature in the visualization
- * @returns The AI's interpretation of the visualization
+ * Generates an initial incorrect reasoning about a visualization that is purposefully misleading
+ *
+ * This server action first checks if a cached reasoning exists for the given image in the database.
+ * If found, it returns the cached result to avoid redundant API calls. If not found, it sends the
+ * visualization to OpenAI's GPT-4o model to generate an incorrect interpretation that is deceived
+ * by the misleading feature, then caches the result for future use.
+ *
+ * @param params - Object containing visualization details
+ * @param params.imageTitle - Title of the visualization being analyzed
+ * @param params.imageSrc - Path to the visualization image file (relative to public directory)
+ * @param params.misleadingFeature - The specific misleading element in the visualization
+ *
+ * @returns A string containing the AI's intentionally incorrect interpretation of the visualization
+ * @throws Error if the OpenAI API key is not configured or if the API request fails
  */
 export default async function getInitialIncorrectReasoning(
-  imageTitle: string,
-  imageSrc: string,
-  misleadingFeature: string
+  params: FunctionParams
 ): Promise<string> {
-  const filename = path.basename(imageSrc);
+  const filename = path.basename(params.imageSrc);
 
   try {
     const result = await db
@@ -50,7 +63,11 @@ export default async function getInitialIncorrectReasoning(
     });
 
     // Fetch the image
-    const absoluteImagePath = path.join(process.cwd(), "public", imageSrc);
+    const absoluteImagePath = path.join(
+      process.cwd(),
+      "public",
+      params.imageSrc
+    );
     const imageBuffer = await readFile(absoluteImagePath);
     const base64Image = Buffer.from(imageBuffer).toString("base64");
 
@@ -68,7 +85,7 @@ export default async function getInitialIncorrectReasoning(
           content: [
             {
               type: "text",
-              text: `Provide a quick incorrect reasoning as the person who was severly deceived by the impact of ${misleadingFeature}.`,
+              text: `Here is a visualization titled ${params.imageTitle} Provide a quick incorrect reasoning as from a point of view of a person who was severly deceived by the impact of ${params.misleadingFeature}.`,
             },
             {
               type: "image_url",
@@ -87,8 +104,8 @@ export default async function getInitialIncorrectReasoning(
     if (aiMessage) {
       await db.insert(visualizationImagesTable).values({
         filename,
-        misleadingFeature,
-        imageTitle,
+        misleadingFeature: params.misleadingFeature,
+        imageTitle: params.imageTitle,
         initialIncorrectReasoning: aiMessage,
       });
       return aiMessage;

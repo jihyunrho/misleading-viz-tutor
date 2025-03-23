@@ -11,15 +11,23 @@ import { ChatMessage, useTutorSessionStore } from "@/stores/tutorSessionStore";
 import ChatBubble from "./ChatBubble";
 import { Skeleton } from "@/components/ui/skeleton";
 import InstructionBubble from "./InstructionBubble";
+import getEvaluationAndUpdatedReasoning from "@/app/actions/getEvaluationAndUpdatedReasoning";
+import logUserAction from "@/app/actions/logUserAction";
 
 const ChatContainer: React.FC = () => {
-  const { currentPage, addMessage } = useTutorSessionStore();
+  const { getSessionData, currentPageNumber, currentPage, addMessage } =
+    useTutorSessionStore();
   const [input, setInput] = useState("");
   const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const messages = currentPage()?.messages || [];
+  const sessionData = getSessionData();
+  const page = currentPage()!;
+  const { imageTitle, imageSrc, misleadingFeature, firstIncorrectReasoning } =
+    page;
+
+  const messages = page.messages;
 
   // Scroll to bottom whenever messages change
   useEffect(() => {
@@ -30,35 +38,49 @@ const ChatContainer: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (input.trim() === "" || isWaitingForResponse) return;
 
     // Set waiting state to true
     setIsWaitingForResponse(true);
 
-    // Add user message
-    const userMessage: ChatMessage = {
+    addMessage({
       role: "user",
       type: "user",
       content: input,
-    };
+    });
 
-    addMessage(userMessage);
+    await logUserAction({
+      sessionData,
+      pageTitle: `Page ${currentPageNumber()} - ${page.imageTitle}`,
+      action: `The participant has typed a message: "${input}".`,
+    });
+
+    const aiResponse = await getEvaluationAndUpdatedReasoning({
+      imageTitle,
+      imageSrc,
+      misleadingFeature,
+      firstIncorrectReasoning: firstIncorrectReasoning!,
+      userCorrection: input,
+    });
+
+    const botMessage: ChatMessage = {
+      role: "assistant",
+      type: "assistant-reasoning",
+      content: aiResponse,
+    };
+    addMessage(botMessage);
+
+    await logUserAction({
+      sessionData,
+      pageTitle: `Page ${currentPageNumber()} - ${page.imageTitle}`,
+      action: `The bot responded with a message: "${botMessage}".`,
+    });
 
     setInput("");
 
-    // Simulate bot response (you would replace with actual API call)
-    setTimeout(() => {
-      const botMessage: ChatMessage = {
-        role: "assistant",
-        type: "assistant-reasoning",
-        content: "I'm analyzing your question about the visualization...",
-      };
-      addMessage(botMessage);
-
-      // Set waiting state back to false after response
-      setIsWaitingForResponse(false);
-    }, 1500);
+    // Set waiting state back to false after response
+    setIsWaitingForResponse(false);
   };
 
   return (

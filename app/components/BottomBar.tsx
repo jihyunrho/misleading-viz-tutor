@@ -6,25 +6,37 @@ import { ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useTutorSessionStore } from "@/stores/tutorSessionStore";
+import logUserAction from "@/app/actions/logUserAction";
 
 export default function BottomBar() {
   const router = useRouter();
 
   const {
+    getSessionData,
     sessionId,
     participantEmail,
     currentPageIndex,
     currentPageNumber,
+    currentPage,
     pages,
     nextPage,
     isLastPage,
   } = useTutorSessionStore();
+
+  const sessionData = getSessionData();
+  const page = currentPage()!;
 
   const handleNextPage = () => {
     if (isLastPage()) {
       // Handle end of session
       router.push("/post-session");
     } else {
+      logUserAction({
+        sessionData,
+        pageTitle: `Page ${currentPageNumber()} - ${page.imageTitle}`,
+        action: `The participant has clicked the next page button on page ${currentPageNumber()}.`,
+      });
+
       nextPage();
     }
   };

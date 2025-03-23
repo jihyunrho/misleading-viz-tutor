@@ -4,17 +4,33 @@ import { readFile } from "fs/promises";
 import path from "path";
 import OpenAI from "openai";
 
+type FunctionParams = {
+  imageTitle: string;
+  imageSrc: string;
+  misleadingFeature: string;
+  firstIncorrectReasoning: string;
+  userCorrection: string;
+};
+
 /**
- * Server-side function to send a graph image to OpenAI for analysis
- * @param imageUrl URL of the image to analyze
- * @param misleadingFeature The type of misleading feature in the visualization
- * @returns The AI's interpretation of the visualization
+ * Evaluates a user's correction to a misleading visualization reasoning and provides updated feedback
+ *
+ * This server action takes information about a visualization, an initial incorrect reasoning,
+ * and the user's attempted correction. It then uses OpenAI's GPT-4o to generate an evaluation
+ * of the user's correction along with an improved reasoning about the visualization.
+ *
+ * @param params - Object containing visualization details and user interaction data
+ * @param params.imageTitle - Title of the visualization being analyzed
+ * @param params.imageSrc - Path to the visualization image file (relative to public directory)
+ * @param params.misleadingFeature - The specific misleading element in the visualization
+ * @param params.firstIncorrectReasoning - The initial incorrect reasoning shown to the user
+ * @param params.userCorrection - The user's attempt to correct the reasoning
+ *
+ * @returns A string containing the AI's evaluation of the correction and revised reasoning
+ * @throws Error if the OpenAI API key is not configured or if the API request fails
  */
 export default async function getEvaluationAndUpdatedReasoning(
-  imagePath: string,
-  misleadingFeature: string,
-  aiIncorrectReasoning: string,
-  userCorrection: string
+  params: FunctionParams
 ): Promise<string> {
   try {
     // Get API key from environment variables
@@ -28,7 +44,11 @@ export default async function getEvaluationAndUpdatedReasoning(
     });
 
     // Fetch the image
-    const absoluteImagePath = path.join(process.cwd(), "public", imagePath);
+    const absoluteImagePath = path.join(
+      process.cwd(),
+      "public",
+      params.imageSrc
+    );
     const imageBuffer = await readFile(absoluteImagePath);
     const base64Image = Buffer.from(imageBuffer).toString("base64");
 
@@ -38,19 +58,45 @@ export default async function getEvaluationAndUpdatedReasoning(
         {
           role: "system",
           content:
-            "You are a tutor AI who evaluates corrections and improves the reasoning accordingly.",
+            "The user is interacting with an AI assistant that is purposefully providing an incorrect reasoning of a visualization. The user attmpts to correct the AI assistant's incorrect reasoning. You are a tutor AI who evaluates corrections and improves the reasoning accordingly.",
         },
         {
           role: "user",
           content: [
             {
               type: "text",
-              text: `AI's incorrect reasoning was: \"${aiIncorrectReasoning}\". The user provided the correction: \"${userCorrection}\". \
-              First, evaluate the correction and give feedback in one sentence. Then revise the reasoning accordingly.`,
+              text: `Here is a visualization titled ${params.imageTitle} Provide a quick incorrect reasoning as from a point of view of a person who was severly deceived by the impact of ${params.misleadingFeature}.`,
             },
             {
               type: "image_url",
               image_url: { url: `data:image/png;base64,${base64Image}` },
+            },
+          ],
+        },
+        {
+          role: "assistant",
+          content: [
+            {
+              type: "text",
+              text: params.firstIncorrectReasoning,
+            },
+          ],
+        },
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: params.userCorrection,
+            },
+          ],
+        },
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: "First, evaluate the correction and give feedback in one sentance. In the next paragraph, revise the reason accordingly.",
             },
           ],
         },

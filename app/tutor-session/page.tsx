@@ -6,20 +6,33 @@ import ChatContainer from "@/app/components/chat/ChatContainer";
 import BottomBar from "@/app/components/BottomBar";
 import { useTutorSessionStore } from "@/stores/tutorSessionStore";
 import ChartDisplay from "@/app/components/ChartDisplay";
-import { Badge } from "@/components/ui/badge";
+import logUserAction from "@/app/actions/logUserAction";
 
 export default function TutorSessionPage() {
   const router = useRouter();
 
-  const { sessionId, currentPage } = useTutorSessionStore();
-  const page = currentPage();
+  const { getSessionData, currentPageIndex, currentPage, currentPageNumber } =
+    useTutorSessionStore();
+  const page = currentPage()!;
+  const sessionData = getSessionData();
 
   // Redirect to home if no session exists
   useEffect(() => {
-    if (!sessionId) {
+    if (!sessionData.sessionId) {
       router.push("/");
     }
-  }, [sessionId, router]);
+  }, [sessionData.sessionId, router]);
+
+  // Redirect to home if no session exists
+  useEffect(() => {
+    logUserAction({
+      sessionData,
+      pageTitle: `Page ${currentPageNumber()} - ${page.imageTitle}`,
+      action: `The participant has navigated to page ${currentPageNumber()}. Image "${
+        page.imageTitle
+      }" is displayed."`,
+    });
+  }, [currentPageIndex]);
 
   return page ? (
     <div className="flex flex-col h-screen max-h-screen overflow-hidden bg-background">
