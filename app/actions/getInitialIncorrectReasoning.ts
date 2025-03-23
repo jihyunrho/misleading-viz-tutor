@@ -3,17 +3,43 @@
 import { readFile } from "fs/promises";
 import path from "path";
 import OpenAI from "openai";
+import { db } from "@/db";
+import { eq } from "drizzle-orm";
+import { visualizationImagesTable } from "@/db/schema";
 
 /**
  * Server-side function to send a graph image to OpenAI for analysis
- * @param imagePath URL of the image to analyze
+ * @param imageTitle Image title
+ * @param imageSrc URL of the image to analyze
  * @param misleadingFeature The type of misleading feature in the visualization
  * @returns The AI's interpretation of the visualization
  */
 export default async function getInitialIncorrectReasoning(
-  imagePath: string,
+  imageTitle: string,
+  imageSrc: string,
   misleadingFeature: string
 ): Promise<string> {
+  const filename = path.basename(imageSrc);
+
+  try {
+    const result = await db
+      .select()
+      .from(visualizationImagesTable)
+      .where(eq(visualizationImagesTable.filename, filename))
+      .limit(1);
+
+    console.log(`✅ Fetched cached reasoning for ${filename}:`, result);
+
+    if (result.length > 0) {
+      let cachedReasoning = result[0].initialIncorrectReasoning;
+      console.log(`cachedReasoning: ${cachedReasoning}`);
+      return cachedReasoning!;
+    }
+  } catch (error) {
+    console.error("❌ Error fetching cached reasoning:", error);
+  }
+
+  // If no cached reasoning, generate a new one using OpenAI
   try {
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
@@ -25,7 +51,7 @@ export default async function getInitialIncorrectReasoning(
     });
 
     // Fetch the image
-    const absoluteImagePath = path.join(process.cwd(), "public", imagePath);
+    const absoluteImagePath = path.join(process.cwd(), "public", imageSrc);
     const imageBuffer = await readFile(absoluteImagePath);
     const base64Image = Buffer.from(imageBuffer).toString("base64");
 
@@ -57,10 +83,17 @@ export default async function getInitialIncorrectReasoning(
     });
 
     // Extract the AI's message
-    const aiMessage =
-      response.choices[0]?.message?.content || "Error generating reasoning.";
+    const aiMessage = response.choices[0]?.message?.content;
 
-    return aiMessage;
+    if (aiMessage) {
+      await db.insert(visualizationImagesTable).values({
+        filename,
+        misleadingFeature,
+        imageTitle,
+        initialIncorrectReasoning: aiMessage,
+      });
+      return aiMessage;
+    }
   } catch (error) {
     if (error instanceof Error) {
       console.error("❌ OpenAI API Error:", error.message);
@@ -69,4 +102,6 @@ export default async function getInitialIncorrectReasoning(
     }
     throw error;
   }
+
+  return "Failed to generate reasoning";
 }

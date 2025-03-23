@@ -1,6 +1,8 @@
 import { TutorPage } from "@/stores/tutorSessionStore";
 import { VisualizationImage } from "@/types";
 
+// A filename must be unique
+// For example, you cannot have two images with the same filename in different directories
 export const visualizationImages: VisualizationImage[] = [
   {
     imageTitle: "3D Pie Chart of Mobile Devices Market Share",

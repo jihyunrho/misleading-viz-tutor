@@ -12,7 +12,9 @@ export default function ChartDisplay() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  const { currentPage, updateCurrentPage } = useTutorSessionStore();
+  const { getSessionData, currentPage, updateCurrentPage } =
+    useTutorSessionStore();
+  const sessionData = getSessionData();
   const page = currentPage();
 
   // Redirect to home if page object is null
@@ -34,6 +36,7 @@ export default function ChartDisplay() {
         setLoading(true);
         try {
           const reasoning = await getInitialIncorrectReasoning(
+            page.imageTitle,
             page.imageSrc,
             page.misleadingFeature
           );
