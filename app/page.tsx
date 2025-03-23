@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { useTutorSessionStore } from "@/stores/tutorSessionStore";
-import { getTutorPages } from "@/data/visualization-images";
+import { getTutorPages } from "@/lib/generate-tutor-pages-data";
 import createTutorSession from "@/app/actions/createTutorSession";
 import { logUserAction } from "@/app/actions/logUserAction";
 

@@ -7,35 +7,19 @@ import { cn } from "@/lib/utils";
 import { Bot, User as UserIcon } from "lucide-react";
 import LoadingDots from "./LoadingDots";
 import { Badge } from "@/components/ui/badge";
-import { ChatMessage } from "@/stores/tutorSessionStore";
+import { ChatMessage, useTutorSessionStore } from "@/stores/tutorSessionStore";
+import ChatBubble from "./ChatBubble";
+import { Skeleton } from "@/components/ui/skeleton";
+import InstructionBubble from "./InstructionBubble";
 
-interface ChatBoxProps {
-  // Define your props here
-  messages: ChatMessage[];
-  onSendMessage: (message: string) => void;
-}
-
-interface Message {
-  id: string;
-  content: string;
-  sender: "user" | "bot";
-  timestamp: Date;
-}
-
-const ChatBox: React.FC<ChatBoxProps> = (props) => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      content:
-        "Hello! I'm your visualization tutor. What questions do you have about this chart?",
-      sender: "bot",
-      timestamp: new Date(),
-    },
-  ]);
+const ChatContainer: React.FC = () => {
+  const { currentPage, addMessage } = useTutorSessionStore();
   const [input, setInput] = useState("");
   const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const messages = currentPage()?.messages || [];
 
   // Scroll to bottom whenever messages change
   useEffect(() => {
@@ -53,25 +37,24 @@ const ChatBox: React.FC<ChatBoxProps> = (props) => {
     setIsWaitingForResponse(true);
 
     // Add user message
-    const userMessage: Message = {
-      id: Date.now().toString(),
+    const userMessage: ChatMessage = {
+      role: "user",
+      type: "user",
       content: input,
-      sender: "user",
-      timestamp: new Date(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    addMessage(userMessage);
+
     setInput("");
 
     // Simulate bot response (you would replace with actual API call)
     setTimeout(() => {
-      const botMessage: Message = {
-        id: (Date.now() + 1).toString(),
+      const botMessage: ChatMessage = {
+        role: "assistant",
+        type: "assistant-reasoning",
         content: "I'm analyzing your question about the visualization...",
-        sender: "bot",
-        timestamp: new Date(),
       };
-      setMessages((prev) => [...prev, botMessage]);
+      addMessage(botMessage);
 
       // Set waiting state back to false after response
       setIsWaitingForResponse(false);
@@ -79,50 +62,23 @@ const ChatBox: React.FC<ChatBoxProps> = (props) => {
   };
 
   return (
-    <div className="flex h-full flex-col border-l">
-      <div className="px-4 py-2">
-        <Badge className="rounded-xs">
-          <MessageSquare />
-          Chat
-        </Badge>
-      </div>
-
-      <div className="flex-1 overflow-hidden p-0">
-        <ScrollArea className="h-full p-4 pt-2" ref={scrollAreaRef}>
+    <div className="flex h-full flex-col border-l w-full">
+      <div className="flex-1 overflow-hidden">
+        <ScrollArea className="h-full" ref={scrollAreaRef}>
           <div className="flex flex-col gap-3">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={cn(
-                  "flex flex-col max-w-[90%]",
-                  message.sender === "user"
-                    ? "items-end ml-auto"
-                    : "items-start"
-                )}
-              >
-                <div className="flex items-center gap-1 mb-1">
-                  {message.sender === "bot" ? (
-                    <Bot className="h-4 w-4 text-green-600" />
-                  ) : (
-                    <UserIcon className="h-4 w-4 text-green-600" />
-                  )}
-                  <span className="text-xs font-medium text-neutral-600">
-                    {message.sender === "bot" ? "AI Assistant" : "Me"}
-                  </span>
-                </div>
-
-                <div
-                  className={cn(
-                    "rounded-sm p-3",
-                    message.sender === "user"
-                      ? "bg-neutral-50 text-neutral-600 rounded-tr-none"
-                      : "bg-green-50 text-green-600 rounded-tl-none"
-                  )}
-                >
-                  {message.content}
-                </div>
+            {messages.map((message, index) =>
+              message.role === "instruction" ? (
+                <InstructionBubble key={index} message={message} />
+              ) : (
+                <ChatBubble key={index} message={message} />
+              )
+            )}
+            {isWaitingForResponse && (
+              <div className="ml-4 flex flex-col gap-3">
+                <Skeleton className="w-1/4 h-4 bg-green-100 rounded-sm" />
+                <Skeleton className="w-3/4 h-6 bg-green-100  rounded-sm" />
               </div>
-            ))}
+            )}
             {/* This empty div serves as our scroll target */}
             <div ref={messagesEndRef} />
           </div>
@@ -162,4 +118,4 @@ const ChatBox: React.FC<ChatBoxProps> = (props) => {
   );
 };
 
-export default ChatBox;
+export default ChatContainer;

@@ -56,7 +56,7 @@ export default function ChartDisplay() {
     <>
       <img src={page.imageSrc} title={page.imageTitle} alt={page.imageTitle} />
 
-      <div className="bg-neutral-50 px-8 py-6 rounded-xs">
+      <div className="bg-neutral-50 mt-4 px-8 py-6 rounded-xs">
         <h3 className="flex text-neutral-800 justify-between font-bold pb-2 border-b-1">
           <p>AI's First (Incorrect) Reasoning</p>
           {loading && <Spinner size="xs" />}

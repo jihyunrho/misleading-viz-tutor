@@ -2,10 +2,10 @@
 import { create } from "zustand";
 
 export type ChatMessage = {
-  role: "user" | "assistant" | "system";
-  type: "user" | "bot-reasoning" | "bot-evaluation";
+  role: "system" | "user" | "assistant" | "instruction";
+  type: "user" | "assistant-reasoning" | "assistant-evaluation" | "instruction";
   content: string;
-  createdAt: string;
+  createdAt?: string;
 };
 
 export type TutorPage = {
@@ -82,9 +82,15 @@ export const useTutorSessionStore = create<TutorSessionStore>((set, get) => ({
     const { pages, currentPageIndex } = get();
     const updatedPages = [...pages];
 
+    // Ensure createdAt is set with current timestamp if not provided
+    const messageWithTimestamp = {
+      ...message,
+      createdAt: message.createdAt || new Date().toISOString(),
+    };
+
     updatedPages[currentPageIndex] = {
       ...currentPage,
-      messages: [...(currentPage.messages || []), message],
+      messages: [...(currentPage.messages || []), messageWithTimestamp],
     };
 
     set({ pages: updatedPages });

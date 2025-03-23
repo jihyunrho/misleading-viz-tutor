@@ -32,7 +32,6 @@ export default async function getInitialIncorrectReasoning(
 
     if (result.length > 0) {
       let cachedReasoning = result[0].initialIncorrectReasoning;
-      console.log(`cachedReasoning: ${cachedReasoning}`);
       return cachedReasoning!;
     }
   } catch (error) {
