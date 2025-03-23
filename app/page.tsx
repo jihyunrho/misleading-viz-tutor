@@ -37,7 +37,7 @@ export default function Home() {
     // FETCH user IP address with CORS enabled
     let participantIpAddr = "unknown";
     try {
-      const response = await fetch("http://ip-api.com/json/", {
+      const response = await fetch("https://api.ipify.org?format=json", {
         mode: "cors",
         headers: {
           Accept: "application/json",
@@ -46,8 +46,7 @@ export default function Home() {
 
       if (response.ok) {
         const data = await response.json();
-        participantIpAddr = data.query;
-        console.log("Location:", data.city, data.country);
+        participantIpAddr = data.ip;
       } else {
         console.error("Failed to fetch IP information:", response.status);
       }
