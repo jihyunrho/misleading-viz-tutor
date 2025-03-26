@@ -9,7 +9,7 @@ import { visualizationImagesTable } from "@/db/schema";
 
 type FunctionParams = {
   imageTitle: string;
-  imageSrc: string;
+  imageFilename: string;
   misleadingFeature: string;
 };
 
@@ -23,7 +23,7 @@ type FunctionParams = {
  *
  * @param params - Object containing visualization details
  * @param params.imageTitle - Title of the visualization being analyzed
- * @param params.imageSrc - Path to the visualization image file (relative to public directory)
+ * @param params.imageFilename - Name of yhe visualization image file
  * @param params.misleadingFeature - The specific misleading element in the visualization
  *
  * @returns A string containing the AI's intentionally incorrect interpretation of the visualization
@@ -32,7 +32,7 @@ type FunctionParams = {
 export default async function getInitialIncorrectReasoning(
   params: FunctionParams
 ): Promise<string> {
-  const filename = path.basename(params.imageSrc);
+  const filename = path.basename(params.imageFilename);
 
   try {
     const result = await db
@@ -65,8 +65,9 @@ export default async function getInitialIncorrectReasoning(
     // Fetch the image
     const absoluteImagePath = path.join(
       process.cwd(),
-      "public",
-      params.imageSrc
+      "assets",
+      "visualizations",
+      params.imageFilename
     );
     const imageBuffer = await readFile(absoluteImagePath);
     const base64Image = Buffer.from(imageBuffer).toString("base64");

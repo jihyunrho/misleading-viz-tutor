@@ -5,7 +5,7 @@ export function getTutorPages(): TutorPage[] {
   return visualizationImages.map((image) => ({
     instruction: `Explain why the chart titled "${image.imageTitle}" is misleading because of its ${image.misleadingFeature}.`,
     imageTitle: image.imageTitle,
-    imageSrc: image.imageSrc,
+    imageFilename: image.imageFilename,
     misleadingFeature: image.misleadingFeature,
     firstIncorrectReasoning: null,
     messages: [

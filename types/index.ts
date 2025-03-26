@@ -1,5 +1,5 @@
 export type VisualizationImage = {
   imageTitle: string;
-  imageSrc: string;
+  imageFilename: string;
   misleadingFeature: string;
 };

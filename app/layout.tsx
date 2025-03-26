@@ -9,6 +9,7 @@ export const metadata: Metadata = {
   description: "A web interface for the Misleading Tutor Viz project",
 };
 
+// Disable resizing on mobile devices
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,

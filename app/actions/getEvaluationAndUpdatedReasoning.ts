@@ -6,7 +6,7 @@ import OpenAI from "openai";
 
 type FunctionParams = {
   imageTitle: string;
-  imageSrc: string;
+  imageFilename: string;
   misleadingFeature: string;
   firstIncorrectReasoning: string;
   userCorrection: string;
@@ -21,7 +21,7 @@ type FunctionParams = {
  *
  * @param params - Object containing visualization details and user interaction data
  * @param params.imageTitle - Title of the visualization being analyzed
- * @param params.imageSrc - Path to the visualization image file (relative to public directory)
+ * @param params.imageFilename - Name of yhe visualization image file
  * @param params.misleadingFeature - The specific misleading element in the visualization
  * @param params.firstIncorrectReasoning - The initial incorrect reasoning shown to the user
  * @param params.userCorrection - The user's attempt to correct the reasoning
@@ -46,8 +46,9 @@ export default async function getEvaluationAndUpdatedReasoning(
     // Fetch the image
     const absoluteImagePath = path.join(
       process.cwd(),
-      "public",
-      params.imageSrc
+      "assets",
+      "visualizations",
+      params.imageFilename
     );
     const imageBuffer = await readFile(absoluteImagePath);
     const base64Image = Buffer.from(imageBuffer).toString("base64");

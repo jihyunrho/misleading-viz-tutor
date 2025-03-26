@@ -11,7 +11,7 @@ export type ChatMessage = {
 export type TutorPage = {
   instruction: string;
   imageTitle: string;
-  imageSrc: string;
+  imageFilename: string;
   misleadingFeature: string;
   firstIncorrectReasoning: string | null;
   messages: ChatMessage[];

@@ -3,10 +3,7 @@ import { Button } from "@/components/ui/button";
 import { MessageSquare, Send } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { cn } from "@/lib/utils";
-import { Bot, User as UserIcon } from "lucide-react";
 import LoadingDots from "./LoadingDots";
-import { Badge } from "@/components/ui/badge";
 import { ChatMessage, useTutorSessionStore } from "@/stores/tutorSessionStore";
 import ChatBubble from "./ChatBubble";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -24,8 +21,12 @@ const ChatContainer: React.FC = () => {
 
   const sessionData = getSessionData();
   const page = currentPage()!;
-  const { imageTitle, imageSrc, misleadingFeature, firstIncorrectReasoning } =
-    page;
+  const {
+    imageTitle,
+    imageFilename,
+    misleadingFeature,
+    firstIncorrectReasoning,
+  } = page;
 
   const messages = page.messages;
 
@@ -58,7 +59,7 @@ const ChatContainer: React.FC = () => {
 
     const aiResponse = await getEvaluationAndUpdatedReasoning({
       imageTitle,
-      imageSrc,
+      imageFilename: imageFilename,
       misleadingFeature,
       firstIncorrectReasoning: firstIncorrectReasoning!,
       userCorrection: input,

@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useTutorSessionStore } from "@/stores/tutorSessionStore";
 import getInitialIncorrectReasoning from "@/app/actions/getInitialIncorrectReasoning";
 import { Skeleton } from "@/components/ui/skeleton";
-import LoadingDots from "./chat/LoadingDots";
 import { Spinner } from "@/components/ui/spinner";
 import logUserAction from "@/app/actions/logUserAction";
 
@@ -30,14 +29,14 @@ export default function ChartDisplay() {
     async function getAIReasoning() {
       if (
         page &&
-        page.imageSrc &&
+        page.imageFilename &&
         page.misleadingFeature &&
         !page.firstIncorrectReasoning
       ) {
         setLoading(true);
         try {
           const reasoning = await getInitialIncorrectReasoning({
-            imageSrc: page.imageSrc,
+            imageFilename: page.imageFilename,
             imageTitle: page.imageTitle,
             misleadingFeature: page.misleadingFeature,
           });
@@ -62,7 +61,11 @@ export default function ChartDisplay() {
 
   return page ? (
     <>
-      <img src={page.imageSrc} title={page.imageTitle} alt={page.imageTitle} />
+      <img
+        src={`/api/serve-image?file=${encodeURIComponent(page.imageFilename)}`}
+        title={page.imageTitle}
+        alt={page.imageTitle}
+      />
 
       <div className="bg-neutral-50 mt-4 px-8 py-6 rounded-xs">
         <h3 className="flex text-neutral-800 justify-between font-bold pb-2 border-b-1">
