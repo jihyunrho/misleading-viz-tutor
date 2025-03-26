@@ -6,6 +6,7 @@ import { db } from "@/db";
 import { eq } from "drizzle-orm";
 import { visualizationImagesTable } from "@/db/schema";
 import { getBaseUrl } from "@/app/actions/getBaseUrl";
+import getGitHubImageUrl from "@/lib/get-github-image-url";
 
 type FunctionParams = {
   imageTitle: string;
@@ -62,20 +63,6 @@ export default async function getInitialIncorrectReasoning(
       apiKey,
     });
 
-    const baseUrl = await getBaseUrl();
-    const imageUrl = `${baseUrl}/images/visualizations/${params.imageFilename}`;
-
-    console.log(`🔍 Fetching image for ${filename}:`, imageUrl);
-    const res = await fetch(imageUrl);
-
-    if (!res.ok) {
-      throw new Error(`Failed to fetch image: ${res.statusText}`);
-    }
-
-    const arrayBuffer = await res.arrayBuffer();
-    const base64Image = Buffer.from(arrayBuffer).toString("base64");
-    const mimeType = res.headers.get("content-type") || "image/png";
-
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
@@ -95,7 +82,7 @@ export default async function getInitialIncorrectReasoning(
             {
               type: "image_url",
               image_url: {
-                url: `data:${mimeType};base64,${base64Image}`,
+                url: getGitHubImageUrl(params.imageFilename),
               },
             },
           ],
