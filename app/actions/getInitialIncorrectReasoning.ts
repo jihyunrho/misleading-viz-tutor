@@ -5,7 +5,6 @@ import OpenAI from "openai";
 import { db } from "@/db";
 import { eq } from "drizzle-orm";
 import { visualizationImagesTable } from "@/db/schema";
-import { getBaseUrl } from "@/app/actions/getBaseUrl";
 import getGitHubImageUrl from "@/lib/get-github-image-url";
 
 type FunctionParams = {

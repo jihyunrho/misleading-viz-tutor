@@ -1,7 +1,7 @@
 "use server";
 
 import OpenAI from "openai";
-import { getBaseUrl } from "@/app/actions/getBaseUrl";
+import getGitHubImageUrl from "@/lib/get-github-image-url";
 
 type FunctionParams = {
   imageTitle: string;
@@ -42,13 +42,6 @@ export default async function getEvaluationAndUpdatedReasoning(
       apiKey,
     });
 
-    // Fetch the image
-    const baseUrl = await getBaseUrl();
-    const imageUrl = `${baseUrl}/images/visualizations/${params.imageFilename}`;
-    const res = await fetch(imageUrl);
-    const imageBuffer = await res.arrayBuffer();
-    const base64Image = Buffer.from(imageBuffer).toString("base64");
-
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
@@ -66,7 +59,7 @@ export default async function getEvaluationAndUpdatedReasoning(
             },
             {
               type: "image_url",
-              image_url: { url: `data:image/png;base64,${base64Image}` },
+              image_url: { url: getGitHubImageUrl(params.imageFilename) },
             },
           ],
         },
