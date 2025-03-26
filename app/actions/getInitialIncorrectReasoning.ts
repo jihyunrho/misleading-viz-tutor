@@ -64,6 +64,8 @@ export default async function getInitialIncorrectReasoning(
 
     const baseUrl = await getBaseUrl();
     const imageUrl = `${baseUrl}/images/visualizations/${params.imageFilename}`;
+
+    console.log(`🔍 Fetching image for ${filename}:`, imageUrl);
     const res = await fetch(imageUrl);
     const imageBuffer = await res.arrayBuffer();
     const base64Image = Buffer.from(imageBuffer).toString("base64");
