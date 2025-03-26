@@ -62,7 +62,7 @@ export default function ChartDisplay() {
   return page ? (
     <>
       <img
-        src={`/api/serve-image?file=${encodeURIComponent(page.imageFilename)}`}
+        src={`/images/visualizations/${encodeURIComponent(page.imageFilename)}`}
         title={page.imageTitle}
         alt={page.imageTitle}
       />

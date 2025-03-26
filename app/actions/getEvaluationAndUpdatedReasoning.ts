@@ -1,8 +1,7 @@
 "use server";
 
-import { readFile } from "fs/promises";
-import path from "path";
 import OpenAI from "openai";
+import { getBaseUrl } from "@/app/actions/getBaseUrl";
 
 type FunctionParams = {
   imageTitle: string;
@@ -21,7 +20,7 @@ type FunctionParams = {
  *
  * @param params - Object containing visualization details and user interaction data
  * @param params.imageTitle - Title of the visualization being analyzed
- * @param params.imageFilename - Name of yhe visualization image file
+ * @param params.imageFilename - Name of the visualization image file
  * @param params.misleadingFeature - The specific misleading element in the visualization
  * @param params.firstIncorrectReasoning - The initial incorrect reasoning shown to the user
  * @param params.userCorrection - The user's attempt to correct the reasoning
@@ -44,13 +43,10 @@ export default async function getEvaluationAndUpdatedReasoning(
     });
 
     // Fetch the image
-    const absoluteImagePath = path.join(
-      process.cwd(),
-      "assets",
-      "visualizations",
-      params.imageFilename
-    );
-    const imageBuffer = await readFile(absoluteImagePath);
+    const baseUrl = await getBaseUrl();
+    const imageUrl = `${baseUrl}/images/visualizations/${params.imageFilename}`;
+    const res = await fetch(imageUrl);
+    const imageBuffer = await res.arrayBuffer();
     const base64Image = Buffer.from(imageBuffer).toString("base64");
 
     const response = await openai.chat.completions.create({

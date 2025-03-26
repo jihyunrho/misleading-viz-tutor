@@ -1,11 +1,11 @@
 "use server";
 
-import { readFile } from "fs/promises";
 import path from "path";
 import OpenAI from "openai";
 import { db } from "@/db";
 import { eq } from "drizzle-orm";
 import { visualizationImagesTable } from "@/db/schema";
+import { getBaseUrl } from "@/app/actions/getBaseUrl";
 
 type FunctionParams = {
   imageTitle: string;
@@ -23,7 +23,7 @@ type FunctionParams = {
  *
  * @param params - Object containing visualization details
  * @param params.imageTitle - Title of the visualization being analyzed
- * @param params.imageFilename - Name of yhe visualization image file
+ * @param params.imageFilename - Name of the visualization image file
  * @param params.misleadingFeature - The specific misleading element in the visualization
  *
  * @returns A string containing the AI's intentionally incorrect interpretation of the visualization
@@ -62,14 +62,10 @@ export default async function getInitialIncorrectReasoning(
       apiKey,
     });
 
-    // Fetch the image
-    const absoluteImagePath = path.join(
-      process.cwd(),
-      "assets",
-      "visualizations",
-      params.imageFilename
-    );
-    const imageBuffer = await readFile(absoluteImagePath);
+    const baseUrl = await getBaseUrl();
+    const imageUrl = `${baseUrl}/images/visualizations/${params.imageFilename}`;
+    const res = await fetch(imageUrl);
+    const imageBuffer = await res.arrayBuffer();
     const base64Image = Buffer.from(imageBuffer).toString("base64");
 
     const response = await openai.chat.completions.create({

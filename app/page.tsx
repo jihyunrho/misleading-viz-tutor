@@ -29,10 +29,7 @@ export default function Home() {
     const newErrors = { name: "", email: "" };
     let hasError = false;
 
-    console.log(`name: ${name}, email: ${email}`);
-
     const participantUserAgent = navigator.userAgent;
-    console.log("User Agent:", participantUserAgent);
 
     // FETCH user IP address with CORS enabled
     let participantIpAddr = "unknown";
