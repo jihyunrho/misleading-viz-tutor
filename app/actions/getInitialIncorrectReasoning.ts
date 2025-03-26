@@ -65,10 +65,10 @@ export default async function getInitialIncorrectReasoning(
     const baseUrl = await getBaseUrl();
     const imageUrl = `${baseUrl}/images/visualizations/${params.imageFilename}`;
 
-    console.log(`🔍 Fetching image for ${filename}:`, imageUrl);
-    const res = await fetch(imageUrl);
-    const imageBuffer = await res.arrayBuffer();
-    const base64Image = Buffer.from(imageBuffer).toString("base64");
+    // console.log(`🔍 Fetching image for ${filename}:`, imageUrl);
+    // const res = await fetch(imageUrl);
+    // const imageBuffer = await res.arrayBuffer();
+    // const base64Image = Buffer.from(imageBuffer).toString("base64");
 
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
@@ -88,7 +88,9 @@ export default async function getInitialIncorrectReasoning(
             },
             {
               type: "image_url",
-              image_url: { url: `data:image/png;base64,${base64Image}` },
+              image_url: {
+                url: imageUrl,
+              },
             },
           ],
         },
