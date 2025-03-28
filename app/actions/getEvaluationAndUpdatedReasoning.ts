@@ -43,19 +43,22 @@ export default async function getEvaluationAndUpdatedReasoning(
     });
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
           content:
-            "The user is interacting with an AI assistant that is purposefully providing an incorrect reasoning of a visualization. The user attmpts to correct the AI assistant's incorrect reasoning. You are a tutor AI who evaluates corrections and improves the reasoning accordingly.",
+            "The user is interacting with an AI assistant that initiates the conversation by purposefully providing an incorrect reasoning of a visualization. \
+            Then, the user attmpts to correct the AI assistant's incorrect reasoning. \
+            You are now becoming a tutor AI who evaluates user's corrections and improves the AI assistant's incorrect reasoning accordingly.",
         },
         {
           role: "user",
           content: [
             {
               type: "text",
-              text: `Here is a visualization titled ${params.imageTitle} Provide a quick incorrect reasoning as from a point of view of a person who was severly deceived by the impact of ${params.misleadingFeature}.`,
+              text: `Here is a visualization titled ${params.imageTitle}.\
+               Provide a quick incorrect reasoning (two sentences) as from a point of view of a person who was severly deceived by the impact of ${params.misleadingFeature}.`,
             },
             {
               type: "image_url",
@@ -86,7 +89,7 @@ export default async function getEvaluationAndUpdatedReasoning(
           content: [
             {
               type: "text",
-              text: "First, evaluate the correction and give feedback in one sentance. In the next paragraph, revise the reason accordingly.",
+              text: `First, evaluate the user's provided correction: ${params.userCorrection} and give feedback in one sentance. In the next paragraph, revise the incorrect reasoning: ${params.firstIncorrectReasoning} accordingly.`,
             },
           ],
         },
