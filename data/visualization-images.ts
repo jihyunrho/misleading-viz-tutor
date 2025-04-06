@@ -4,18 +4,18 @@ import { VisualizationImage } from "@/types";
 // For example, you cannot have two images with the same filename in different directories
 export const visualizationImages: VisualizationImage[] = [
   {
-    imageTitle: "3D Pie Chart of Mobile Devices Market Share",
-    imageFilename: "3d_pie_phones.png",
-    misleadingFeature: "3D effect",
+    imageTitle: "Line Chart of Gun Death Rate",
+    imageFilename: "invertedyaxis_line_gundeath.jpg",
+    misleadingFeature: "inverted y-axis",
   },
   {
-    imageTitle: "Bar Chart of Bicycle Sales by Year",
-    imageFilename: "bar_year_bicycles.png",
-    misleadingFeature: "truncated y-axis",
+    imageTitle: "Bar Chart of Artists' sales",
+    imageFilename: "manipulatedxaxis_bar_artistsales.jpg",
+    misleadingFeature: "manipulated x-axis",
   },
   {
-    imageTitle: "Line Chart of Turtles by Year",
-    imageFilename: "line_year_turtles.png",
-    misleadingFeature: "truncated y-axis",
+    imageTitle: "Pie Chart of Covid-19 Worries",
+    imageFilename: "over100_pie_covidworries.jpg",
+    misleadingFeature: "over 100",
   },
 ];
