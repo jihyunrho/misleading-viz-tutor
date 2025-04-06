@@ -6,6 +6,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import LoadingDots from "./LoadingDots";
 import { ChatMessage, useTutorSessionStore } from "@/stores/tutorSessionStore";
 import ChatBubble from "./ChatBubble";
+import FeedbackBubble from "./FeedbackBubble";  
+import ChatbotBubble from "./ChatbotBubble"; 
 import { Skeleton } from "@/components/ui/skeleton";
 import InstructionBubble from "./InstructionBubble";
 import getEvaluationAndUpdatedReasoning from "@/app/actions/getEvaluationAndUpdatedReasoning";
@@ -57,25 +59,31 @@ const ChatContainer: React.FC = () => {
       action: `The participant has typed a message: "${input}".`,
     });
 
-    const aiResponse = await getEvaluationAndUpdatedReasoning({
-      imageTitle,
-      imageFilename: imageFilename,
-      misleadingFeature,
-      firstIncorrectReasoning: firstIncorrectReasoning!,
-      userCorrection: input,
-    });
+    const { assistantFeedback, chatbotReasoning } =
+      await getEvaluationAndUpdatedReasoning({
+        imageTitle,
+        imageFilename,
+        misleadingFeature,
+        firstIncorrectReasoning: firstIncorrectReasoning!,
+        userCorrection: input,
+      });
 
-    const botMessage: ChatMessage = {
-      role: "assistant",
-      type: "assistant-reasoning",
-      content: aiResponse,
-    };
-    addMessage(botMessage);
+
+    addMessage({
+        role: "assistant",
+        type: "assistant-feedback",
+        content: assistantFeedback,
+    });
+    addMessage({
+        role: "chatbot",
+        type: "chatbot-reasoning",
+        content: chatbotReasoning,
+    });
 
     await logUserAction({
       sessionData,
       pageTitle: `Page ${currentPageNumber()} - ${page.imageTitle}`,
-      action: `The bot responded with a message: "${botMessage}".`,
+      action: `The bot responded with assistant + chatbot messages.`,
     });
 
     setInput("");
@@ -89,13 +97,18 @@ const ChatContainer: React.FC = () => {
       <div className="flex-1 overflow-hidden">
         <ScrollArea className="h-full" ref={scrollAreaRef}>
           <div className="flex flex-col gap-3">
-            {messages.map((message, index) =>
-              message.role === "instruction" ? (
-                <InstructionBubble key={index} message={message} />
-              ) : (
-                <ChatBubble key={index} message={message} />
-              )
-            )}
+            {messages.map((message, index) => {
+              switch (message.role) {
+                case "instruction":
+                  return <InstructionBubble key={index} message={message} />;
+                case "assistant":
+                  return <FeedbackBubble key={index} message={message} />; // 🔧
+                case "chatbot":
+                  return <ChatbotBubble key={index} message={message} firstIncorrectReasoning={page.firstIncorrectReasoning!}/>;   // 🔧
+                default:
+                  return <ChatBubble key={index} message={message} />;
+              }
+            })}
             {isWaitingForResponse && (
               <div className="ml-4 flex flex-col gap-3">
                 <Skeleton className="w-1/4 h-4 bg-green-100 rounded-sm" />

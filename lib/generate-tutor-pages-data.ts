@@ -12,7 +12,7 @@ export function getTutorPages(): TutorPage[] {
       {
         role: "instruction",
         type: "instruction",
-        content: `Explain why the AI's first interpretation of the ${image.imageTitle} is incorrect.`,
+        content: `Explain why the AI chatbot's first interpretation of the ${image.imageTitle} is incorrect.`,
       },
     ],
   }));

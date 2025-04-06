@@ -2,8 +2,8 @@
 import { create } from "zustand";
 
 export type ChatMessage = {
-  role: "system" | "user" | "assistant" | "instruction";
-  type: "user" | "assistant-reasoning" | "assistant-evaluation" | "instruction";
+  role: "system" | "user" | "assistant" | "chatbot" | "instruction";
+  type: "user" | "assistant-feedback" | "chatbot-reasoning" | "instruction";
   content: string;
   createdAt?: string;
 };

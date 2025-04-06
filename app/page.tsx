@@ -94,13 +94,13 @@ export default function Home() {
       <div className="flex-1 h-full grid grid-cols-2">
         <div className="flex flex-col h-screen justify-center p-8 overflow-auto bg-neutral-100">
           <div>
-            <h1 className="text-xl font-semibold">Misleading DataViz Tutor</h1>
+            <h1 className="text-xl font-semibold">Teaching AI about data visualization</h1>
             <p className="mt-4">
-              This study is about how people reason about data visualizations.
-              Your task is to explain why the chart is misleading to a chatbot.
+              This study is about teaching AI chatbot to understand visualizations correctly.
+              Your task is to correct the AI chatbot's mistakes in understanding the given visualization.
             </p>
             <p className="mt-4">
-              Enter your name and email. Click on the "Start Tutor Session"
+              Enter your name and email. Click on the "Start Teaching Session"
               button when you're ready.
             </p>
 
@@ -110,7 +110,7 @@ export default function Home() {
               <span>Estimated Time</span>
             </Badge>
             <p className="mt-2">
-              This study will take about <strong>one hour</strong>. You must
+              This study will take about <strong> 30 minutes </strong>. You must
               finish the session in one sitting. You can't save your progress.
             </p>
           </div>
@@ -154,7 +154,7 @@ export default function Home() {
               className="flex items-center gap-2 rounded-xs cursor-pointer bg-slate-900"
               disabled={isLoading}
             >
-              Start Tutor Session <ArrowRight className="h-4 w-4" />
+              Start Teaching Session <ArrowRight className="h-4 w-4" />
             </Button>
           </form>
         </div>

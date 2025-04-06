@@ -12,7 +12,6 @@ type FunctionParams = {
   imageFilename: string;
   misleadingFeature: string;
 };
-
 /**
  * Generates an initial incorrect reasoning about a visualization that is purposefully misleading
  *
@@ -34,6 +33,7 @@ export default async function getInitialIncorrectReasoning(
 ): Promise<string> {
   const filename = path.basename(params.imageFilename);
 
+  // 1. 먼저 캐시 확인 (DB 조회)
   try {
     const result = await db
       .select()
@@ -41,43 +41,36 @@ export default async function getInitialIncorrectReasoning(
       .where(eq(visualizationImagesTable.filename, filename))
       .limit(1);
 
-    console.log(`✅ Fetched cached reasoning for ${filename}:`, result);
-
     if (result.length > 0) {
-      let cachedReasoning = result[0].initialIncorrectReasoning;
+      const cachedReasoning = result[0].initialIncorrectReasoning;
+      console.log(`✅ Loaded cached flawed reasoning for ${filename}`);
       return cachedReasoning!;
     }
   } catch (error) {
     console.error("❌ Error fetching cached reasoning:", error);
   }
 
-  // If no cached reasoning, generate a new one using OpenAI
+  // 2. 없으면 OpenAI로 새로 생성
   try {
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) {
       throw new Error("OpenAI API key not found in environment variables");
     }
 
-    const openai = new OpenAI({
-      apiKey,
-    });
+    const openai = new OpenAI({ apiKey });
+
+    const flawedPrompt = `You are a misled person who is deceived by ${params.misleadingFeature} in this ${params.imageTitle} and makes a flawed decision.
+      Say two sentences of typical flawed reasoning about this misleading visualization that are expected in situation when you are misled by the impact of ${params.misleadingFeature} and context of this visualization.
+      Do not mention the exact number or values in the visualization in your flawed reasoning, but just a typical flawed reasoning as the person who is deceived by the impact of ${params.misleadingFeature}.
+      Do not say like "one might assume incorrectly~", you are role playing a person who is not good at correct reasoning for misleading visualization.`;
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4o",
       messages: [
-        {
-          role: "system",
-          content:
-            "You are an AI assistant that generates interpretations of data visualizations. \
-            You fail to realize the existince of the misleading features within the graph and being deceived from the misleading visual features.",
-        },
         {
           role: "user",
           content: [
-            {
-              type: "text",
-              text: `Here is a visualization titled ${params.imageTitle} Provide a quick incorrect reasoning as from a point of view of a person who was severly deceived by the impact of ${params.misleadingFeature}.`,
-            },
+            { type: "text", text: flawedPrompt },
             {
               type: "image_url",
               image_url: {
@@ -91,26 +84,23 @@ export default async function getInitialIncorrectReasoning(
       max_tokens: 300,
     });
 
-    // Extract the AI's message
-    const aiMessage = response.choices[0]?.message?.content;
+    const aiMessage = response.choices[0]?.message?.content?.trim();
 
     if (aiMessage) {
+      // 저장
       await db.insert(visualizationImagesTable).values({
         filename,
         misleadingFeature: params.misleadingFeature,
         imageTitle: params.imageTitle,
         initialIncorrectReasoning: aiMessage,
       });
+      console.log(`💾 Cached new flawed reasoning for ${filename}`);
       return aiMessage;
     }
   } catch (error) {
-    if (error instanceof Error) {
-      console.error("❌ OpenAI API Error:", error.message);
-    } else {
-      console.error("❌ OpenAI API Error:", error);
-    }
+    console.error("❌ OpenAI API Error:", error);
     throw error;
   }
 
-  return "Failed to generate reasoning";
+  return "Failed to generate reasoning.";
 }
