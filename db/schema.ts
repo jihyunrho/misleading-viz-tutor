@@ -35,8 +35,8 @@ export const chatMessagesTable = pgTable("chat_messages", {
 
 export const userActionLogsTable = pgTable("user_action_logs", {
   id: serial("id").primaryKey(),
-  ipAddr: varchar("ip_addr", { length: 45 }).notNull(),
-  userAgent: text("user_agent").notNull(),
+  ipAddr: varchar("ip_addr", { length: 45 }),
+  userAgent: text("user_agent"),
   participantName: varchar("participant_name", { length: 255 }).notNull(),
   participantEmail: varchar("participant_email", { length: 255 }).notNull(),
   sessionId: varchar("session_id", { length: 36 })

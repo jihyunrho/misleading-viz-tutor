@@ -11,6 +11,10 @@ type LogUserActionParams = {
 };
 
 export default async function logUserAction(params: LogUserActionParams) {
+  console.log(
+    `Logging user action: ${params.action} on page: ${params.pageTitle}`
+  );
+
   try {
     await db.insert(userActionLogsTable).values({
       ipAddr: params.sessionData.ipAddr!,

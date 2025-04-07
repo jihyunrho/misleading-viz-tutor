@@ -7,9 +7,9 @@ import { ChatMessage, TutorSessionData } from "@/stores/tutorSessionStore";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { sessionId: string } }
+  { params }: { params: Promise<{ sessionId: string }> }
 ) {
-  const sessionId = params.sessionId;
+  const { sessionId } = await params;
 
   const [session] = await db
     .select()
@@ -35,9 +35,9 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { sessionId: string } }
+  { params }: { params: Promise<{ sessionId: string }> }
 ) {
-  const sessionId = params.sessionId;
+  const { sessionId } = await params;
   const body = await req.json();
 
   // Update session progress

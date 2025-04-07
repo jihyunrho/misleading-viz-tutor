@@ -12,6 +12,7 @@ import { useTutorSessionStore } from "@/stores/tutorSessionStore";
 import { getTutorPages } from "@/lib/generate-tutor-pages-data";
 import createTutorSession from "@/app/actions/createTutorSession";
 import logUserAction from "@/app/actions/logUserAction";
+import getClientInfo from "@/utils/getClientInfo";
 
 export default function Home() {
   const [name, setName] = useState("");
