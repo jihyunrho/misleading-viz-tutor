@@ -15,7 +15,6 @@ export default function BottomBar() {
     getSessionData,
     sessionId,
     participantEmail,
-    currentPageIndex,
     currentPageNumber,
     currentPage,
     pages,

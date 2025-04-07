@@ -25,10 +25,6 @@ export default function Home() {
     e.preventDefault();
     setIsLoading(true);
 
-    // Reset errors
-    const newErrors = { name: "", email: "" };
-    let hasError = false;
-
     const participantUserAgent = navigator.userAgent;
 
     // FETCH user IP address with CORS enabled
@@ -78,13 +74,7 @@ export default function Home() {
       });
     }
 
-    // If no errors, proceed
-    if (!hasError) {
-      // Initialize the tutor session
-
-      // Navigate to pre-session page
-      router.push("/pre-session");
-    }
+    router.push(`/tutor-session/${getSessionData().sessionId}/pre`);
 
     setIsLoading(false);
   };
@@ -94,10 +84,13 @@ export default function Home() {
       <div className="flex-1 h-full grid grid-cols-2">
         <div className="flex flex-col h-screen justify-center p-8 overflow-auto bg-neutral-100">
           <div>
-            <h1 className="text-xl font-semibold">Teaching AI about data visualization</h1>
+            <h1 className="text-xl font-semibold">
+              Teaching AI about data visualization
+            </h1>
             <p className="mt-4">
-              This study is about teaching AI chatbot to understand visualizations correctly.
-              Your task is to correct the AI chatbot's mistakes in understanding the given visualization.
+              This study is about teaching AI chatbot to understand
+              visualizations correctly. Your task is to correct the AI chatbot's
+              mistakes in understanding the given visualization.
             </p>
             <p className="mt-4">
               Enter your name and email. Click on the "Start Teaching Session"

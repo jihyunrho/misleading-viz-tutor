@@ -4,22 +4,27 @@ import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { useTutorSessionStore } from "@/stores/tutorSessionStore";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useEffect } from "react";
 import logUserAction from "@/app/actions/logUserAction";
+import useTutorSession from "@/hooks/useTutorSession.ts";
 
 export default function PreSessionPage() {
-  const { getSessionData } = useTutorSessionStore();
   const router = useRouter();
 
-  const sessionData = getSessionData();
+  const {
+    sessionData,
+    isLoading,
+    endSession, // optional
+    resetSession, // optional
+  } = useTutorSession();
 
   // Redirect to home if no session exists
   useEffect(() => {
-    if (!sessionData.sessionId) {
+    if (!sessionData.sessionId && !isLoading) {
       router.push("/");
     }
-  }, [sessionData.sessionId, router]);
+  }, [sessionData.sessionId, router, isLoading]);
 
   const handleContinue = async () => {
     await logUserAction({
@@ -28,7 +33,7 @@ export default function PreSessionPage() {
       action: `The participant clicked the continue button on the pre-session page.`,
     });
 
-    router.push("/tutor-session");
+    router.push(`/tutor-session/${sessionData.sessionId}/tutor-page`);
   };
 
   // Show loading or empty state if session is not available
