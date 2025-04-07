@@ -25,11 +25,15 @@ export default function ChartDisplay() {
 
   return page ? (
     <>
-      <img
-        src={`/images/visualizations/${encodeURIComponent(page.imageFilename)}`}
-        title={page.imageTitle}
-        alt={page.imageTitle}
-      />
+      <div className="p-4">
+        <img
+          src={`/images/visualizations/${encodeURIComponent(
+            page.imageFilename
+          )}`}
+          title={page.imageTitle}
+          alt={page.imageTitle}
+        />
+      </div>
 
       <div className="bg-neutral-50 mt-4 px-8 py-6 rounded-xs">
         <h3 className="flex text-neutral-800 justify-between font-bold pb-2 border-b-1">

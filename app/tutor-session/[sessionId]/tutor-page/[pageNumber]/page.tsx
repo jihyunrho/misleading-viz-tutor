@@ -45,9 +45,11 @@ export default function TutorSessionPage() {
 
   return page ? (
     <div className="flex flex-col h-screen max-h-screen overflow-hidden bg-background">
-      <div className="flex-1 h-full items-center grid grid-cols-2 overflow-hidden">
-        <div className="flex h-full flex-col justify-center  px-4 py-2 overflow-y-auto">
-          <ChartDisplay />
+      <div className="flex-1 h-full grid grid-cols-2 overflow-hidden">
+        <div className="flex h-full flex-col justify-center px-4 py-2 overflow-auto">
+          <div className="flex-1 overflow-y-auto">
+            <ChartDisplay />
+          </div>
         </div>
 
         <div className="flex h-full overflow-hidden">
