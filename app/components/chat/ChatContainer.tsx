@@ -6,8 +6,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import LoadingDots from "./LoadingDots";
 import { ChatMessage, useTutorSessionStore } from "@/stores/tutorSessionStore";
 import ChatBubble from "./ChatBubble";
-import FeedbackBubble from "./FeedbackBubble";  
-import ChatbotBubble from "./ChatbotBubble"; 
+import FeedbackBubble from "./FeedbackBubble";
+import ChatbotBubble from "./ChatbotBubble";
 import { Skeleton } from "@/components/ui/skeleton";
 import InstructionBubble from "./InstructionBubble";
 import getEvaluationAndUpdatedReasoning from "@/app/actions/getEvaluationAndUpdatedReasoning";
@@ -27,7 +27,7 @@ const ChatContainer: React.FC = () => {
     imageTitle,
     imageFilename,
     misleadingFeature,
-    firstIncorrectReasoning,
+    initialIncorrectReasoning,
   } = page;
 
   const messages = page.messages;
@@ -64,20 +64,19 @@ const ChatContainer: React.FC = () => {
         imageTitle,
         imageFilename,
         misleadingFeature,
-        firstIncorrectReasoning: firstIncorrectReasoning!,
+        firstIncorrectReasoning: initialIncorrectReasoning!,
         userCorrection: input,
       });
 
-
     addMessage({
-        role: "assistant",
-        type: "assistant-feedback",
-        content: assistantFeedback,
+      role: "assistant",
+      type: "assistant-feedback",
+      content: assistantFeedback,
     });
     addMessage({
-        role: "chatbot",
-        type: "chatbot-reasoning",
-        content: chatbotReasoning,
+      role: "chatbot",
+      type: "chatbot-reasoning",
+      content: chatbotReasoning,
     });
 
     await logUserAction({
@@ -104,7 +103,15 @@ const ChatContainer: React.FC = () => {
                 case "assistant":
                   return <FeedbackBubble key={index} message={message} />; // 🔧
                 case "chatbot":
-                  return <ChatbotBubble key={index} message={message} firstIncorrectReasoning={page.firstIncorrectReasoning!}/>;   // 🔧
+                  return (
+                    <ChatbotBubble
+                      key={index}
+                      message={message}
+                      initialIncorrectReasoning={
+                        page.initialIncorrectReasoning!
+                      }
+                    />
+                  ); // 🔧
                 default:
                   return <ChatBubble key={index} message={message} />;
               }

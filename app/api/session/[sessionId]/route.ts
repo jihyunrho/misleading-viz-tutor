@@ -54,8 +54,6 @@ export async function PATCH(
       sessionId,
       pageNumber: msg.pageNumber,
       imageTitle: msg.imageTitle,
-      imagePath: msg.imagePath,
-      pageInstruction: msg.pageInstruction,
       role: msg.role,
       type: msg.type,
       content: msg.content,

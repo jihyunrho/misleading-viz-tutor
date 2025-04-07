@@ -26,27 +26,7 @@ export default function Home() {
     e.preventDefault();
     setIsLoading(true);
 
-    const participantUserAgent = navigator.userAgent;
-
-    // FETCH user IP address with CORS enabled
-    let participantIpAddr = "unknown";
-    try {
-      const response = await fetch("https://api.ipify.org?format=json", {
-        mode: "cors",
-        headers: {
-          Accept: "application/json",
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        participantIpAddr = data.ip;
-      } else {
-        console.error("Failed to fetch IP information:", response.status);
-      }
-    } catch (error) {
-      console.error("Error fetching IP information:", error);
-    }
+    const { ipAddr, userAgent } = await getClientInfo();
 
     // ADD A NEW ROW TO THE TUTOR_SESSIONS TABLE
     const createResult = await createTutorSession({
@@ -59,11 +39,11 @@ export default function Home() {
 
       setSession({
         sessionId,
-        ipAddr: participantIpAddr,
-        userAgent: participantUserAgent,
+        ipAddr: ipAddr,
+        userAgent: userAgent,
         participantName: name,
         participantEmail: email,
-        pages: getTutorPages(),
+        messages: [],
       });
 
       const sessionData = getSessionData();

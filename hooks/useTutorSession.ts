@@ -1,6 +1,7 @@
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useTutorSessionStore } from "@/stores/tutorSessionStore";
+import { getTutorPages } from "@/lib/generate-tutor-pages-data";
 
 let activeHydratedSessionId: string | null = null;
 
@@ -13,6 +14,15 @@ export default function useTutorSession() {
   const isAlreadyHydrated = currentSessionId === sessionId;
 
   const [isLoading, setIsLoading] = useState(!isAlreadyHydrated);
+
+  console.log(
+    "useTutorSession: sessionId =",
+    sessionId,
+    "isAlreadyHydrated =",
+    isAlreadyHydrated,
+    "currentSessionId =",
+    currentSessionId
+  );
 
   useEffect(() => {
     if (!sessionId) return;
@@ -42,7 +52,6 @@ export default function useTutorSession() {
           participantEmail: data.participantEmail,
           startTime: data.startedAt,
           endTime: data.endedAt,
-          pages: data.pages || [],
           currentPageIndex: data.currentPageNumber ?? 0,
           ipAddr: null,
           userAgent: null,

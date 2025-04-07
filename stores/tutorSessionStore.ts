@@ -1,5 +1,6 @@
 "use client";
 import { create } from "zustand";
+import { tutorPagesData } from "@/data/tutor-pages-data";
 
 export type ChatMessage = {
   role: "system" | "user" | "assistant" | "chatbot" | "instruction";
@@ -13,7 +14,7 @@ export type TutorPage = {
   imageTitle: string;
   imageFilename: string;
   misleadingFeature: string;
-  firstIncorrectReasoning: string | null;
+  initialIncorrectReasoning: string | null;
   messages: ChatMessage[];
 };
 
@@ -26,8 +27,8 @@ export type TutorSessionData = {
   participantEmail: string;
   startTime: string;
   endTime: string | null;
-  pages: TutorPage[];
   currentPageIndex: number;
+  messages: ChatMessage[];
 };
 
 // Store type extends the data with methods
@@ -37,8 +38,6 @@ type TutorSessionStore = TutorSessionData & {
   addMessage: (message: ChatMessage) => void;
   nextPage: () => void;
   prevPage: () => void;
-  updateInstruction: (instruction: string) => void;
-  updateCurrentPage: (pageUpdates: Partial<TutorPage>) => void;
   currentPage: () => TutorPage | null;
   currentPageNumber: () => number;
   isLastPage: () => boolean;
@@ -55,8 +54,8 @@ const initialState: TutorSessionData = {
   participantEmail: "",
   startTime: "",
   endTime: null,
-  pages: [],
   currentPageIndex: 0,
+  messages: [],
 };
 
 export const useTutorSessionStore = create<TutorSessionStore>((set, get) => ({
@@ -72,33 +71,19 @@ export const useTutorSessionStore = create<TutorSessionStore>((set, get) => ({
   },
 
   addMessage: (message) => {
-    const currentPage = get().currentPage();
-
-    if (!currentPage) {
-      console.warn("Tried to add message, but no current page exists.");
-      return;
-    }
-
-    const { pages, currentPageIndex } = get();
-    const updatedPages = [...pages];
-
-    // Ensure createdAt is set with current timestamp if not provided
     const messageWithTimestamp = {
       ...message,
       createdAt: message.createdAt || new Date().toISOString(),
     };
 
-    updatedPages[currentPageIndex] = {
-      ...currentPage,
-      messages: [...(currentPage.messages || []), messageWithTimestamp],
-    };
-
-    set({ pages: updatedPages });
+    set((state) => ({
+      messages: [...state.messages, messageWithTimestamp],
+    }));
   },
 
   nextPage: () => {
-    const { currentPageIndex, pages } = get();
-    if (currentPageIndex < pages.length - 1) {
+    const { currentPageIndex } = get();
+    if (currentPageIndex < tutorPagesData.length - 1) {
       set({ currentPageIndex: currentPageIndex + 1 });
     }
   },
@@ -110,62 +95,21 @@ export const useTutorSessionStore = create<TutorSessionStore>((set, get) => ({
     }
   },
 
-  updateInstruction: (instruction) => {
-    const currentPage = get().currentPage();
-
-    if (!currentPage) {
-      console.warn("Tried to update instruction, but no current page exists.");
-      return;
-    }
-
-    const { pages, currentPageIndex } = get();
-    const updatedPages = [...pages];
-
-    updatedPages[currentPageIndex] = {
-      ...currentPage,
-      instruction,
-    };
-
-    set({ pages: updatedPages });
-  },
-
-  updateCurrentPage: (pageUpdates: Partial<TutorPage>) => {
-    const currentPage = get().currentPage();
-
-    if (!currentPage) {
-      console.warn("Tried to update page, but no current page exists.");
-      return;
-    }
-
-    const { pages, currentPageIndex } = get();
-    const updatedPages = [...pages];
-
-    updatedPages[currentPageIndex] = {
-      ...currentPage,
-      ...pageUpdates,
-    };
-
-    set({ pages: updatedPages });
-  },
-
-  // Derived getter
   currentPage: () => {
-    const { pages, currentPageIndex } = get();
-    return pages.length > 0 && currentPageIndex < pages.length
-      ? pages[currentPageIndex]
-      : null;
+    const { currentPageIndex } = get();
+    return tutorPagesData[currentPageIndex] || null;
   },
 
   currentPageNumber: () => {
-    const { pages, currentPageIndex } = get();
-    return pages.length > 0 && currentPageIndex < pages.length
+    const { currentPageIndex } = get();
+    return tutorPagesData.length > 0 && currentPageIndex < tutorPagesData.length
       ? currentPageIndex + 1
       : -1;
   },
 
   isLastPage: () => {
-    const { pages, currentPageIndex } = get();
-    return currentPageIndex === pages.length - 1;
+    const { currentPageIndex } = get();
+    return currentPageIndex === tutorPagesData.length - 1;
   },
 
   resetSession: () => {
@@ -186,8 +130,8 @@ export const useTutorSessionStore = create<TutorSessionStore>((set, get) => ({
       participantEmail: state.participantEmail,
       startTime: state.startTime,
       endTime: state.endTime,
-      pages: state.pages,
       currentPageIndex: state.currentPageIndex,
+      messages: state.messages,
     };
   },
 }));

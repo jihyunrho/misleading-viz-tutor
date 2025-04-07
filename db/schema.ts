@@ -25,8 +25,6 @@ export const chatMessagesTable = pgTable("chat_messages", {
     .notNull(),
   pageNumber: integer("page_number").notNull(),
   imageTitle: varchar("image_title", { length: 255 }).notNull(),
-  imagePath: varchar("image_src", { length: 255 }).notNull(),
-  pageInstruction: text("page_instruction").notNull(),
   role: varchar("role", { length: 255 }).notNull(),
   type: varchar("type", { length: 255 }).notNull(),
   content: text("content").notNull(),
@@ -47,11 +45,4 @@ export const userActionLogsTable = pgTable("user_action_logs", {
   pageTitle: varchar("page_title", { length: 255 }).notNull(),
   action: text("action").notNull(),
   createdAt: timestamp("timestamp"),
-});
-
-export const visualizationImagesTable = pgTable("viz_images", {
-  filename: varchar("filename", { length: 255 }).primaryKey(),
-  misleadingFeature: varchar("misleading_feature", { length: 255 }).notNull(),
-  imageTitle: varchar("image_title", { length: 255 }).notNull(),
-  initialIncorrectReasoning: text("initial_incorrect_reasoning"),
 });

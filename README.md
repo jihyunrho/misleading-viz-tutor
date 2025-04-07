@@ -42,3 +42,13 @@ export const visualizationImages: VisualizationImage[] = [
   }
 ]
 ```
+
+## Changing the Database schema
+
+To change the Postgres database schema via the Drizzle ORM, modify the `db/schema.ts` file.
+
+Then, run the following command to apply the changes to the database without creating a migration file:
+
+```bash
+npx drizzle-kit push
+```

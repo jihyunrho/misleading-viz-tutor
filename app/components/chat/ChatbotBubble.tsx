@@ -3,12 +3,15 @@ import { ChatMessage } from "@/stores/tutorSessionStore";
 
 interface Props {
   message: ChatMessage;
-  firstIncorrectReasoning: string;
+  initialIncorrectReasoning: string;
 }
 
-const ChatbotBubble: React.FC<Props> = ({ message, firstIncorrectReasoning }) => {
+const ChatbotBubble: React.FC<Props> = ({
+  message,
+  initialIncorrectReasoning,
+}) => {
   const cleanedChatbotReasoning = message.content.trim();
-  const cleanedOriginal = firstIncorrectReasoning.trim();
+  const cleanedOriginal = initialIncorrectReasoning.trim();
 
   const isSameAsOriginal =
     cleanedChatbotReasoning === cleanedOriginal ||
@@ -17,7 +20,9 @@ const ChatbotBubble: React.FC<Props> = ({ message, firstIncorrectReasoning }) =>
   return (
     <div className="flex justify-start px-4">
       <div className="bg-green-100 text-green-900 rounded-2xl px-4 py-3 max-w-md shadow-sm">
-        <p className="text-xs font-semibold mb-1 text-green-700">🤖 AI Chatbot (Revised Reasoning)</p>
+        <p className="text-xs font-semibold mb-1 text-green-700">
+          🤖 AI Chatbot (Revised Reasoning)
+        </p>
         <p className="text-sm whitespace-pre-wrap">
           {isSameAsOriginal ? "No revised reasoning." : message.content}
         </p>

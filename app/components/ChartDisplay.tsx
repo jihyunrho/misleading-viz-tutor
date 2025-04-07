@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTutorSessionStore } from "@/stores/tutorSessionStore";
-import getInitialIncorrectReasoning from "@/app/actions/getInitialIncorrectReasoning";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import logUserAction from "@/app/actions/logUserAction";
@@ -12,7 +11,7 @@ export default function ChartDisplay() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  const { getSessionData, currentPage, currentPageNumber, updateCurrentPage } =
+  const { getSessionData, currentPage, currentPageNumber } =
     useTutorSessionStore();
   const sessionData = getSessionData();
   const page = currentPage();
@@ -23,41 +22,6 @@ export default function ChartDisplay() {
       router.push("/");
     }
   }, [page, router]);
-
-  // Call AI to get incorrect reasoning when component mounts
-  useEffect(() => {
-    async function getAIReasoning() {
-      if (
-        page &&
-        page.imageFilename &&
-        page.misleadingFeature &&
-        !page.firstIncorrectReasoning
-      ) {
-        setLoading(true);
-        try {
-          const reasoning = await getInitialIncorrectReasoning({
-            imageFilename: page.imageFilename,
-            imageTitle: page.imageTitle,
-            misleadingFeature: page.misleadingFeature,
-          });
-          updateCurrentPage({ firstIncorrectReasoning: reasoning });
-
-          // No need to await
-          logUserAction({
-            sessionData,
-            pageTitle: `Page ${currentPageNumber()} - ${page.imageTitle}`,
-            action: `The AI has generated the first incorrect reasoning for the image "${page.imageTitle}". The reasoning is: "${reasoning}".`,
-          });
-        } catch (error) {
-          console.error("Failed to get AI reasoning:", error);
-        } finally {
-          setLoading(false);
-        }
-      }
-    }
-
-    getAIReasoning();
-  }, [page, updateCurrentPage]);
 
   return page ? (
     <>
@@ -82,7 +46,7 @@ export default function ChartDisplay() {
           </>
         ) : (
           <p className="mt-3 text-base text-neutral-700">
-            {page.firstIncorrectReasoning}
+            {page.initialIncorrectReasoning}
           </p>
         )}
       </div>

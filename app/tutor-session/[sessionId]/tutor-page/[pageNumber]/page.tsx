@@ -7,24 +7,33 @@ import BottomBar from "@/app/components/BottomBar";
 import { useTutorSessionStore } from "@/stores/tutorSessionStore";
 import ChartDisplay from "@/app/components/ChartDisplay";
 import logUserAction from "@/app/actions/logUserAction";
+import useTutorSession from "@/hooks/useTutorSession";
 
 export default function TutorSessionPage() {
   const router = useRouter();
 
-  const { getSessionData, currentPageIndex, currentPage, currentPageNumber } =
-    useTutorSessionStore();
+  const {
+    getSessionData,
+    isLoading,
+    currentPageIndex,
+    currentPage,
+    currentPageNumber,
+  } = useTutorSession();
   const page = currentPage()!;
   const sessionData = getSessionData();
 
   // Redirect to home if no session exists
   useEffect(() => {
-    if (!sessionData.sessionId) {
+    if (!sessionData.sessionId && !isLoading) {
       router.push("/");
     }
-  }, [sessionData.sessionId, router]);
+  }, [sessionData.sessionId, router, isLoading]);
 
-  // Redirect to home if no session exists
   useEffect(() => {
+    console.log(`page data: ${JSON.stringify(page)}`);
+
+    if (!sessionData.sessionId) return;
+
     logUserAction({
       sessionData,
       pageTitle: `Page ${currentPageNumber()} - ${page.imageTitle}`,
@@ -32,7 +41,7 @@ export default function TutorSessionPage() {
         page.imageTitle
       }" is displayed."`,
     });
-  }, [currentPageIndex]);
+  }, [sessionData.sessionId, currentPageIndex]);
 
   return page ? (
     <div className="flex flex-col h-screen max-h-screen overflow-hidden bg-background">

@@ -7,17 +7,12 @@ import { useTutorSessionStore } from "@/stores/tutorSessionStore";
 import { useRouter, useParams } from "next/navigation";
 import { useEffect } from "react";
 import logUserAction from "@/app/actions/logUserAction";
-import useTutorSession from "@/hooks/useTutorSession.ts";
+import useTutorSession from "@/hooks/useTutorSession";
 
 export default function PreSessionPage() {
   const router = useRouter();
 
-  const {
-    sessionData,
-    isLoading,
-    endSession, // optional
-    resetSession, // optional
-  } = useTutorSession();
+  const { sessionData, isLoading } = useTutorSession();
 
   // Redirect to home if no session exists
   useEffect(() => {

@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useTutorSessionStore } from "@/stores/tutorSessionStore";
 import logUserAction from "@/app/actions/logUserAction";
+import { tutorPagesData } from "@/data/tutor-pages-data";
 
 export default function BottomBar() {
   const router = useRouter();
@@ -17,7 +18,6 @@ export default function BottomBar() {
     participantEmail,
     currentPageNumber,
     currentPage,
-    pages,
     nextPage,
     isLastPage,
   } = useTutorSessionStore();
@@ -28,7 +28,7 @@ export default function BottomBar() {
   const handleNextPage = () => {
     if (isLastPage()) {
       // Handle end of session
-      router.push("/post-session");
+      router.push(`/tutor-session/${sessionId}/outro`);
     } else {
       logUserAction({
         sessionData,
@@ -58,12 +58,14 @@ export default function BottomBar() {
       </div>
       <div className="flex flex-row items-center gap-2">
         <span className="text-xs">
-          Page {currentPageNumber()} / {pages.length}
+          Page {currentPageNumber()} / {tutorPagesData.length}
         </span>
         <div>
           <Progress
             value={
-              pages.length > 0 ? (currentPageNumber() / pages.length) * 100 : 0
+              tutorPagesData.length > 0
+                ? (currentPageNumber() / tutorPagesData.length) * 100
+                : 0
             }
             className="w-32 h-2 [&>*]:bg-green-500 bg-neutral-600"
           />
