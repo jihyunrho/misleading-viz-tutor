@@ -95,7 +95,7 @@ export default function ChartAndReasoningDisplay() {
             })}
 
             {isWaitingForChatbotResponse && (
-              <Skeleton className="bg-slate-300 w-full h-8 rounded-sm" />
+              <Skeleton className="bg-slate-100 w-full h-8 rounded-sm" />
             )}
 
             <div ref={messagesEndRef} />
