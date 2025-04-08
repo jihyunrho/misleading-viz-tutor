@@ -1,8 +1,6 @@
 "use client";
 import { create } from "zustand";
 import { tutorPagesData } from "@/data/tutor-pages-data";
-import { InferSelectModel } from "drizzle-orm";
-import { tutorSessionsTable, chatMessagesTable } from "@/db/schema";
 import { TutorPage, ChatMessage, ChatMessageInsertWithMeta } from "@/types";
 
 // Core session data
@@ -22,7 +20,7 @@ export type TutorSessionData = {
 type TutorSessionStore = TutorSessionData & {
   // Methods
   setSession: (session: Partial<TutorSessionData>) => void;
-  addMessageToState: (message: ChatMessageInsertWithMeta) => void;
+  addMessage: (message: ChatMessageInsertWithMeta) => void;
   replaceMessage: (
     tempId: string,
     newMessage: ChatMessageInsertWithMeta
@@ -45,7 +43,7 @@ const initialState: TutorSessionData = {
   participantEmail: "",
   startTime: "",
   endTime: null,
-  currentPageIndex: 0,
+  currentPageIndex: -1,
   messages: [],
 };
 
@@ -61,7 +59,7 @@ export const useTutorSessionStore = create<TutorSessionStore>((set, get) => ({
     }));
   },
 
-  addMessageToState: (message) => {
+  addMessage: (message) => {
     set((state) => ({
       messages: [...state.messages, message],
     }));

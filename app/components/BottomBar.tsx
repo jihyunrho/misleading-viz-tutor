@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { useTutorSessionStore } from "@/stores/tutorSessionStore";
 import logUserAction from "@/app/actions/logUserAction";
 import { tutorPagesData } from "@/data/tutor-pages-data";
+import useTutorSession from "@/hooks/useTutorSession";
 
 export default function BottomBar() {
   const router = useRouter();
@@ -20,7 +20,7 @@ export default function BottomBar() {
     currentPage,
     nextPage,
     isLastPage,
-  } = useTutorSessionStore();
+  } = useTutorSession();
 
   const sessionData = getSessionData();
   const page = currentPage()!;

@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import ChatContainer from "@/app/components/chat/ChatContainer";
 import BottomBar from "@/app/components/BottomBar";
-import { useTutorSessionStore } from "@/stores/tutorSessionStore";
 import ChartDisplay from "@/app/components/ChartDisplay";
 import logUserAction from "@/app/actions/logUserAction";
 import useTutorSession from "@/hooks/useTutorSession";
@@ -32,7 +31,13 @@ export default function TutorSessionPage() {
   useEffect(() => {
     console.log(`page data: ${JSON.stringify(page)}`);
 
-    if (!sessionData.sessionId || !sessionData.ipAddr) return;
+    if (
+      !sessionData.sessionId ||
+      !sessionData.ipAddr ||
+      !sessionData.userAgent! ||
+      currentPageIndex < 0
+    )
+      return;
 
     logUserAction({
       sessionData,
@@ -41,7 +46,14 @@ export default function TutorSessionPage() {
         page.imageTitle
       }" is displayed."`,
     });
-  }, [sessionData.sessionId, sessionData.ipAddr, currentPageIndex]);
+  }, [
+    sessionData.sessionId,
+    sessionData.ipAddr,
+    sessionData.userAgent,
+    currentPageIndex,
+  ]);
+
+  console.log(`page: ${JSON.stringify(page)}`);
 
   return page ? (
     <div className="flex flex-col h-screen max-h-screen overflow-hidden bg-background">
@@ -58,6 +70,8 @@ export default function TutorSessionPage() {
       <BottomBar />
     </div>
   ) : (
-    <div>Invalid Page</div>
+    <div className="flex flex-col h-screen bg-background items-center justify-center">
+      Loading Page
+    </div>
   );
 }

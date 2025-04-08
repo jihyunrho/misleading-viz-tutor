@@ -4,7 +4,6 @@ import { MessageSquare, Pyramid, Send } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import LoadingDots from "./LoadingDots";
-import { ChatMessage, useTutorSessionStore } from "@/stores/tutorSessionStore";
 import ChatBubble from "./ChatBubble";
 import FeedbackBubble from "./FeedbackBubble";
 import ChatbotBubble from "./ChatbotBubble";
@@ -13,10 +12,11 @@ import InstructionBubble from "./InstructionBubble";
 import getEvaluationAndUpdatedReasoning from "@/app/actions/getEvaluationAndUpdatedReasoning";
 import logUserAction from "@/app/actions/logUserAction";
 import { Badge } from "@/components/ui/badge";
+import useTutorSession from "@/hooks/useTutorSession";
 
 const ChatContainer: React.FC = () => {
   const { getSessionData, currentPageNumber, currentPage, addMessage } =
-    useTutorSessionStore();
+    useTutorSession();
   const [input, setInput] = useState("");
   const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);

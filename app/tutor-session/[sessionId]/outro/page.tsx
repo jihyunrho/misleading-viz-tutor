@@ -1,9 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { useTutorSessionStore } from "@/stores/tutorSessionStore";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import logUserAction from "@/app/actions/logUserAction";

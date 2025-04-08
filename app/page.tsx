@@ -8,10 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { useTutorSessionStore } from "@/stores/tutorSessionStore";
 import createTutorSession from "@/app/actions/createTutorSession";
 import logUserAction from "@/app/actions/logUserAction";
-import getClientInfo from "@/lib/getClientInfo";
+import useTutorSession from "@/hooks/useTutorSession";
 
 export default function Home() {
   const [name, setName] = useState("");
@@ -19,7 +18,7 @@ export default function Home() {
   const [errors, setErrors] = useState({ name: "", email: "" });
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { getSessionData, setSession } = useTutorSessionStore();
+  const { getSessionData, setSession } = useTutorSession();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -2,12 +2,10 @@
 
 import { useEffect } from "react";
 import getClientInfo from "@/lib/getClientInfo";
-import { useTutorSessionStore } from "@/stores/tutorSessionStore";
+import useTutorSession from "./useTutorSession";
 
 export default function useClientInfo() {
-  const { ipAddr, userAgent } = useTutorSessionStore();
-
-  const setSession = useTutorSessionStore((state) => state.setSession);
+  const { ipAddr, userAgent, setSession } = useTutorSession();
 
   useEffect(() => {
     if (!ipAddr || !userAgent) {
