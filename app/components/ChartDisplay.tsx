@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
-import useTutorSession from "@/hooks/useTutorSession";
+import { useTutorSession } from "@/hooks/useTutorSession";
 
 export default function ChartDisplay() {
   const router = useRouter();

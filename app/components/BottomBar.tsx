@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import logUserAction from "@/app/actions/logUserAction";
 import { tutorPagesData } from "@/data/tutor-pages-data";
-import useTutorSession from "@/hooks/useTutorSession";
+import { useTutorSession } from "@/hooks/useTutorSession";
 
 export default function BottomBar() {
   const router = useRouter();

@@ -6,7 +6,7 @@ import ChatContainer from "@/app/components/chat/ChatContainer";
 import BottomBar from "@/app/components/BottomBar";
 import ChartDisplay from "@/app/components/ChartDisplay";
 import logUserAction from "@/app/actions/logUserAction";
-import useTutorSession from "@/hooks/useTutorSession";
+import { useTutorSession } from "@/hooks/useTutorSession";
 
 export default function TutorSessionPage() {
   const router = useRouter();

@@ -6,12 +6,12 @@ import { Separator } from "@/components/ui/separator";
 import { useRouter, useParams } from "next/navigation";
 import { useEffect } from "react";
 import logUserAction from "@/app/actions/logUserAction";
-import useTutorSession from "@/hooks/useTutorSession";
+import { useTutorSession } from "@/hooks/useTutorSession";
 
 export default function PreSessionPage() {
   const router = useRouter();
 
-  const { sessionData, isLoading } = useTutorSession();
+  const { isLoading, sessionData, setSession } = useTutorSession();
 
   // Redirect to home if no session exists
   useEffect(() => {
@@ -26,6 +26,8 @@ export default function PreSessionPage() {
       pageTitle: "Pre-session",
       action: `The participant clicked the continue button on the pre-session page.`,
     });
+
+    setSession({ currentPageIndex: 0 });
 
     router.push(`/tutor-session/${sessionData.sessionId}/tutor-page`);
   };

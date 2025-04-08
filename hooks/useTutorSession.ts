@@ -1,17 +1,25 @@
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useTutorSessionStore } from "@/stores/tutorSessionStore";
+import {
+  _useTutorSessionStore,
+  TutorSessionData,
+} from "@/stores/tutorSessionStore";
+import {
+  ChatMessage,
+  ChatMessageInput,
+  ChatMessageInsertWithMeta,
+} from "@/types";
 
 let activeHydratedSessionId: string | null = null;
 
-export default function useTutorSession() {
+export function useTutorSession() {
   const params = useParams();
   const sessionId = params.sessionId as string;
   const pageNumber = params.pageNumber
     ? parseInt(params.pageNumber as string, 10)
     : null;
 
-  const store = useTutorSessionStore();
+  const store = _useTutorSessionStore();
   const currentSessionId = store.sessionId;
   const isAlreadyHydrated = currentSessionId === sessionId;
 
@@ -34,10 +42,6 @@ export default function useTutorSession() {
       return;
     }
 
-    if (activeHydratedSessionId && activeHydratedSessionId !== sessionId) {
-      store.resetSession();
-    }
-
     setIsLoading(true);
 
     fetch(`/api/session/${sessionId}`)
@@ -48,15 +52,22 @@ export default function useTutorSession() {
         return res.json();
       })
       .then((data) => {
+        console.log("Hydrated session data:", data);
+
+        const { session: hydratedSession, messages: hydratedMessages } =
+          data as {
+            session: Partial<TutorSessionData>;
+            messages: ChatMessage[];
+          };
+
         store.setSession({
-          sessionId: data.sessionId,
-          participantName: data.participantName,
-          participantEmail: data.participantEmail,
-          startTime: data.startedAt,
-          endTime: data.endedAt,
+          sessionId: hydratedSession.sessionId,
+          participantName: hydratedSession.participantName,
+          participantEmail: hydratedSession.participantEmail,
+          startedAt: hydratedSession.startedAt,
+          endedAt: hydratedSession.endedAt,
           currentPageIndex: pageNumber ? pageNumber - 1 : 0,
-          ipAddr: null,
-          userAgent: null,
+          messages: hydratedMessages,
         });
 
         activeHydratedSessionId = sessionId;
@@ -68,9 +79,28 @@ export default function useTutorSession() {
       });
   }, [sessionId, isAlreadyHydrated]);
 
+  const addTemporaryChatMessage = (params: ChatMessageInput) => {
+    const { role, type, content } = params;
+
+    const tempMessage: ChatMessageInsertWithMeta = {
+      tempId: crypto.randomUUID(),
+      sessionId: store.sessionId,
+      pageNumber: store.currentPageNumber(),
+      imageTitle: store.currentPage()?.imageTitle || "",
+      role,
+      type,
+      content,
+    };
+
+    store.addMessage(tempMessage);
+
+    return tempMessage;
+  };
+
   return {
     sessionData: store.getSessionData(),
     isLoading,
     ...store,
+    addTemporaryChatMessage,
   };
 }

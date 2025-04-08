@@ -10,8 +10,8 @@ export type TutorSessionData = {
   userAgent: string | null;
   participantName: string;
   participantEmail: string;
-  startTime: string;
-  endTime: string | null;
+  startedAt: Date | null;
+  endedAt: Date | null;
   currentPageIndex: number;
   messages: (ChatMessage | ChatMessageInsertWithMeta)[];
 };
@@ -20,19 +20,18 @@ export type TutorSessionData = {
 type TutorSessionStore = TutorSessionData & {
   // Methods
   setSession: (session: Partial<TutorSessionData>) => void;
-  addMessage: (message: ChatMessageInsertWithMeta) => void;
-  replaceMessage: (
-    tempId: string,
-    newMessage: ChatMessageInsertWithMeta
-  ) => void;
   nextPage: () => void;
   prevPage: () => void;
   currentPage: () => TutorPage | null;
   currentPageNumber: () => number;
   isLastPage: () => boolean;
-  resetSession: () => void;
-  endSession: () => void;
   getSessionData: () => TutorSessionData;
+  addMessage: (messageInput: ChatMessageInsertWithMeta) => void;
+  replaceMessage: (
+    tempId: string,
+    newMessage: ChatMessageInsertWithMeta
+  ) => void;
+  getCurrentMessages: () => (ChatMessage | ChatMessageInsertWithMeta)[];
 };
 
 const initialState: TutorSessionData = {
@@ -41,35 +40,21 @@ const initialState: TutorSessionData = {
   userAgent: null,
   participantName: "",
   participantEmail: "",
-  startTime: "",
-  endTime: null,
+  startedAt: null,
+  endedAt: null,
   currentPageIndex: -1,
   messages: [],
 };
 
-export const useTutorSessionStore = create<TutorSessionStore>((set, get) => ({
+// Should use the useTutorSession to hydrate from the Database
+export const _useTutorSessionStore = create<TutorSessionStore>((set, get) => ({
   ...initialState,
 
   setSession: (session) => {
     set((state) => ({
       ...state,
       ...session,
-      startTime:
-        state.startTime || session.startTime || new Date().toISOString(),
-    }));
-  },
-
-  addMessage: (message) => {
-    set((state) => ({
-      messages: [...state.messages, message],
-    }));
-  },
-
-  replaceMessage: (tempId, newMessage) => {
-    set((state) => ({
-      messages: state.messages.map((msg) =>
-        "tempId" in msg && msg.tempId === tempId ? newMessage : msg
-      ),
+      startedAt: state.startedAt || session.startedAt || new Date(),
     }));
   },
 
@@ -104,14 +89,6 @@ export const useTutorSessionStore = create<TutorSessionStore>((set, get) => ({
     return currentPageIndex === tutorPagesData.length - 1;
   },
 
-  resetSession: () => {
-    set({ ...initialState });
-  },
-
-  endSession: () => {
-    set({ endTime: new Date().toISOString() });
-  },
-
   getSessionData: () => {
     const state = get();
     return {
@@ -120,10 +97,32 @@ export const useTutorSessionStore = create<TutorSessionStore>((set, get) => ({
       userAgent: state.userAgent,
       participantName: state.participantName,
       participantEmail: state.participantEmail,
-      startTime: state.startTime,
-      endTime: state.endTime,
+      startedAt: state.startedAt,
+      endedAt: state.endedAt,
       currentPageIndex: state.currentPageIndex,
       messages: state.messages,
     };
+  },
+
+  addMessage: (message) => {
+    set((state) => ({
+      messages: [...state.messages, message],
+    }));
+  },
+
+  replaceMessage: (tempId, newMessage) => {
+    set((state) => ({
+      messages: state.messages.map((msg) =>
+        "tempId" in msg && msg.tempId === tempId ? newMessage : msg
+      ),
+    }));
+  },
+
+  getCurrentMessages: () => {
+    const { currentPage, messages } = get();
+
+    return messages.filter(
+      (msg) => msg.imageTitle === currentPage()?.imageTitle
+    );
   },
 }));

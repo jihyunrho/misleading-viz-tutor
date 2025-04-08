@@ -2,13 +2,9 @@
 
 import { db } from "@/db";
 import { chatMessagesTable } from "@/db/schema";
-import { ChatMessageInsert } from "@/types";
+import { ChatMessageInsertWithMeta } from "@/types";
 
-type AddMessageParams = {
-  message: ChatMessageInsert;
-};
-
-export async function addMessageToDB({ message }: AddMessageParams) {
+export async function addMessageToDB(message: ChatMessageInsertWithMeta) {
   try {
     const result = await db
       .insert(chatMessagesTable)

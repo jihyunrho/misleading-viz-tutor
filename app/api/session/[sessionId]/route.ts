@@ -1,6 +1,8 @@
 // app/api/session/[sessionId]/route.ts
 import { db } from "@/db"; // your Drizzle DB instance
 import { tutorSessionsTable, chatMessagesTable } from "@/db/schema";
+import { TutorSessionData } from "@/stores/tutorSessionStore";
+import { ChatMessage } from "@/types";
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -23,11 +25,18 @@ export async function GET(
     return NextResponse.json({ error: "Session not found" }, { status: 404 });
   }
 
-  const { tutor_sessions: session } = result[0];
+  console.log("Fetched session data:", result);
 
-  console.log("Session data:", session);
+  // Extract session from the first result
+  const session: Partial<TutorSessionData> = result[0].tutor_sessions;
+
+  // Transform messages to ensure it's always an array
+  const messages: ChatMessage[] = result
+    .map((row) => row.chat_messages)
+    .filter((message): message is ChatMessage => message !== null);
 
   return NextResponse.json({
-    ...session,
+    session,
+    messages,
   });
 }

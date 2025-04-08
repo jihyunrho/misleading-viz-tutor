@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import createTutorSession from "@/app/actions/createTutorSession";
 import logUserAction from "@/app/actions/logUserAction";
-import useTutorSession from "@/hooks/useTutorSession";
+import { useTutorSession } from "@/hooks/useTutorSession";
 
 export default function Home() {
   const [name, setName] = useState("");

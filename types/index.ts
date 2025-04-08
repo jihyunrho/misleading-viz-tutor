@@ -15,9 +15,14 @@ export type TutorPage = {
   initialIncorrectReasoning: string | null;
 };
 
+export type ChatMessageInput = {
+  role: string;
+  type: string;
+  content: string;
+};
+
 export type ChatMessage = typeof chatMessagesTable.$inferSelect;
 export type ChatMessageInsert = typeof chatMessagesTable.$inferInsert;
 export type ChatMessageInsertWithMeta = ChatMessageInsert & {
   tempId: string;
-  isSynced: boolean;
 };

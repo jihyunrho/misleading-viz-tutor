@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { MessageSquare, Pyramid, Send } from "lucide-react";
@@ -12,11 +14,16 @@ import InstructionBubble from "./InstructionBubble";
 import getEvaluationAndUpdatedReasoning from "@/app/actions/getEvaluationAndUpdatedReasoning";
 import logUserAction from "@/app/actions/logUserAction";
 import { Badge } from "@/components/ui/badge";
-import useTutorSession from "@/hooks/useTutorSession";
+import { useTutorSession } from "@/hooks/useTutorSession";
+import { addMessageToDB } from "@/app/actions/addMessageToDB";
 
 const ChatContainer: React.FC = () => {
-  const { getSessionData, currentPageNumber, currentPage, addMessage } =
-    useTutorSession();
+  const {
+    getSessionData,
+    currentPageNumber,
+    currentPage,
+    addTemporaryChatMessage,
+  } = useTutorSession();
   const [input, setInput] = useState("");
   const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
@@ -24,12 +31,6 @@ const ChatContainer: React.FC = () => {
 
   const sessionData = getSessionData();
   const page = currentPage()!;
-  const {
-    imageTitle,
-    imageFilename,
-    misleadingFeature,
-    initialIncorrectReasoning,
-  } = page;
 
   const messages = sessionData.messages;
 
@@ -48,11 +49,20 @@ const ChatContainer: React.FC = () => {
     // Set waiting state to true
     setIsWaitingForResponse(true);
 
-    addMessage({
+    const tempUserMessage = addTemporaryChatMessage({
       role: "user",
       type: "user",
       content: input,
     });
+
+    const { success: userMessageInsertSuccess, data: newUserMessageData } =
+      await addMessageToDB(tempUserMessage);
+
+    console.log(
+      `userMessageInsertSuccess`,
+      userMessageInsertSuccess,
+      newUserMessageData
+    );
 
     await logUserAction({
       sessionData,
@@ -60,31 +70,31 @@ const ChatContainer: React.FC = () => {
       action: `The participant has typed a message: "${input}".`,
     });
 
-    const { assistantFeedback, chatbotReasoning } =
-      await getEvaluationAndUpdatedReasoning({
-        imageTitle,
-        imageFilename,
-        misleadingFeature,
-        firstIncorrectReasoning: initialIncorrectReasoning!,
-        userCorrection: input,
-      });
+    // const { assistantFeedback, chatbotReasoning } =
+    //   await getEvaluationAndUpdatedReasoning({
+    //     imageTitle,
+    //     imageFilename,
+    //     misleadingFeature,
+    //     firstIncorrectReasoning: initialIncorrectReasoning!,
+    //     userCorrection: input,
+    //   });
 
-    addMessage({
-      role: "assistant",
-      type: "assistant-feedback",
-      content: assistantFeedback,
-    });
-    addMessage({
-      role: "chatbot",
-      type: "chatbot-reasoning",
-      content: chatbotReasoning,
-    });
+    // addTemporaryChatMessage({
+    //   role: "assistant",
+    //   type: "assistant-feedback",
+    //   content: assistantFeedback,
+    // });
+    // addTemporaryChatMessage({
+    //   role: "chatbot",
+    //   type: "chatbot-reasoning",
+    //   content: chatbotReasoning,
+    // });
 
-    await logUserAction({
-      sessionData,
-      pageTitle: `Page ${currentPageNumber()} - ${page.imageTitle}`,
-      action: `The bot responded with assistant + chatbot messages.`,
-    });
+    // await logUserAction({
+    //   sessionData,
+    //   pageTitle: `Page ${currentPageNumber()} - ${page.imageTitle}`,
+    //   action: `The bot responded with assistant + chatbot messages.`,
+    // });
 
     setInput("");
 

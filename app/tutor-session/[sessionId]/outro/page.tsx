@@ -4,7 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import logUserAction from "@/app/actions/logUserAction";
-import useTutorSession from "@/hooks/useTutorSession";
+import { useTutorSession } from "@/hooks/useTutorSession";
 
 export default function PreSessionPage() {
   const { getSessionData } = useTutorSession();

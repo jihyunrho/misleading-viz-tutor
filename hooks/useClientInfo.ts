@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import getClientInfo from "@/lib/getClientInfo";
-import useTutorSession from "./useTutorSession";
+import { useTutorSession } from "@/hooks/useTutorSession";
 
 export default function useClientInfo() {
   const { ipAddr, userAgent, setSession } = useTutorSession();
