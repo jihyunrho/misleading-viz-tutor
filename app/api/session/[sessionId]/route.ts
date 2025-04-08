@@ -38,3 +38,46 @@ export async function GET(
     messages,
   });
 }
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ sessionId: string }> }
+) {
+  const { sessionId } = await params;
+
+  // Parse the request body
+  const body = await req.json();
+
+  // Filter out invalid fields
+  const { participantName, participantEmail, startedAt, endedAt } = body;
+  const updates: Record<string, any> = {};
+
+  if (participantName) updates.participantName = participantName;
+  if (participantEmail) updates.participantEmail = participantEmail;
+  if (startedAt) updates.startedAt = new Date(startedAt);
+  if (endedAt) updates.endedAt = new Date(endedAt);
+
+  // Ensure there is at least one field to update
+  if (Object.keys(updates).length === 0) {
+    return NextResponse.json(
+      { error: "No valid fields provided for update" },
+      { status: 400 }
+    );
+  }
+
+  // Perform the update
+  const result = await db
+    .update(tutorSessionsTable)
+    .set(updates)
+    .where(eq(tutorSessionsTable.sessionId, sessionId))
+    .returning();
+
+  if (result.length === 0) {
+    return NextResponse.json({ error: "Session not found" }, { status: 404 });
+  }
+
+  return NextResponse.json({
+    message: "Session updated successfully",
+    session: result[0],
+  });
+}

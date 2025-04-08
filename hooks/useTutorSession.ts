@@ -99,10 +99,41 @@ export function useTutorSession() {
     return tempMessage;
   };
 
+  const recordEndedAt = async () => {
+    if (store.endedAt || !store.sessionId) return;
+
+    try {
+      const response = await fetch(`/api/session/${sessionId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ endedAt: new Date() }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error(
+          "Error recording endedAt time for the session:",
+          errorData.error
+        );
+        return;
+      }
+
+      const data = await response.json();
+      console.log("Session endedAt time recorded successfully:", data.endedAt);
+
+      store.setSession({ endedAt: data.endedAt });
+    } catch (error) {
+      console.error("Error making request:", error);
+    }
+  };
+
   return {
     sessionData: store.getSessionData(),
     isLoading,
     ...store,
     createTemporaryChatMessage,
+    recordEndedAt,
   };
 }

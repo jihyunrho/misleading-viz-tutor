@@ -7,7 +7,7 @@ import logUserAction from "@/app/actions/logUserAction";
 import { useTutorSession } from "@/hooks/useTutorSession";
 
 export default function PreSessionPage() {
-  const { getSessionData } = useTutorSession();
+  const { getSessionData, recordEndedAt } = useTutorSession();
 
   const router = useRouter();
 
@@ -15,12 +15,14 @@ export default function PreSessionPage() {
 
   // Redirect to home if no session exists
   useEffect(() => {
-    if (sessionData.sessionId)
+    if (sessionData.sessionId) {
       logUserAction({
         sessionData,
         pageTitle: "Post-session",
         action: `The participant has copmleted the tutoring session.`,
       });
+      recordEndedAt();
+    }
   }, [sessionData.sessionId]);
 
   return (
