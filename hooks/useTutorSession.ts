@@ -1,13 +1,15 @@
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useTutorSessionStore } from "@/stores/tutorSessionStore";
-import { getTutorPages } from "@/lib/generate-tutor-pages-data";
 
 let activeHydratedSessionId: string | null = null;
 
 export default function useTutorSession() {
   const params = useParams();
   const sessionId = params.sessionId as string;
+  const pageNumber = params.pageNumber
+    ? parseInt(params.pageNumber as string, 10)
+    : null;
 
   const store = useTutorSessionStore();
   const currentSessionId = store.sessionId;
@@ -52,7 +54,7 @@ export default function useTutorSession() {
           participantEmail: data.participantEmail,
           startTime: data.startedAt,
           endTime: data.endedAt,
-          currentPageIndex: data.currentPageNumber ?? 0,
+          currentPageIndex: pageNumber ? pageNumber - 1 : 0,
           ipAddr: null,
           userAgent: null,
         });

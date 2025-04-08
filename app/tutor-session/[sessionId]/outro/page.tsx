@@ -7,9 +7,11 @@ import { useTutorSessionStore } from "@/stores/tutorSessionStore";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import logUserAction from "@/app/actions/logUserAction";
+import useTutorSession from "@/hooks/useTutorSession";
 
 export default function PreSessionPage() {
-  const { getSessionData } = useTutorSessionStore();
+  const { getSessionData } = useTutorSession();
+
   const router = useRouter();
 
   const sessionData = getSessionData();

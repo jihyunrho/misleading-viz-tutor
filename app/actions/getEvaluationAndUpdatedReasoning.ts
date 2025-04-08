@@ -1,7 +1,7 @@
 "use server";
 
 import OpenAI from "openai";
-import getGitHubImageUrl from "@/lib/get-github-image-url";
+import getGitHubImageUrl from "@/lib/getGitHubImageUrl";
 
 type FunctionParams = {
   imageTitle: string;
@@ -15,7 +15,6 @@ type EvaluationResult = {
   assistantFeedback: string;
   chatbotReasoning: string;
 };
-
 
 /**
  * Evaluates a user's correction to a misleading visualization reasoning and provides updated feedback
@@ -55,7 +54,7 @@ export default async function getEvaluationAndUpdatedReasoning(
         After receiving the user's correction, you will give a one sentence feedback on the user's correction. 
         Only if when the users' correction is correct or partially capture the misleading feature, you will revise your previously flawed reasoning according to the user's correction.
         However, if the user's correction is not correct or inappropriate (out of context), then only give a short one sentence encouraging message (the second role).
-      `
+      `,
     });
 
     const thread = await openai.beta.threads.create();
@@ -75,16 +74,16 @@ export default async function getEvaluationAndUpdatedReasoning(
         {
           type: "image_url",
           image_url: {
-            url: getGitHubImageUrl(params.imageFilename)
-          }
-        }
-      ]
+            url: getGitHubImageUrl(params.imageFilename),
+          },
+        },
+      ],
     });
 
     // 2. 사용자 교정 입력
     await openai.beta.threads.messages.create(thread.id, {
       role: "user",
-      content: params.userCorrection
+      content: params.userCorrection,
     });
 
     // 3. 평가 및 reasoning 수정 요청
@@ -99,18 +98,18 @@ export default async function getEvaluationAndUpdatedReasoning(
 
     await openai.beta.threads.messages.create(thread.id, {
       role: "user",
-      content: evalPrompt
+      content: evalPrompt,
     });
 
     // Assistant 실행
     const run = await openai.beta.threads.runs.create(thread.id, {
-      assistant_id: assistant.id
+      assistant_id: assistant.id,
     });
 
     let runStatus;
     do {
       runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
-      await new Promise(res => setTimeout(res, 1000));
+      await new Promise((res) => setTimeout(res, 1000));
     } while (runStatus.status !== "completed");
 
     const messages = await openai.beta.threads.messages.list(thread.id);
@@ -121,7 +120,9 @@ export default async function getEvaluationAndUpdatedReasoning(
 
     return {
       assistantFeedback: feedback?.trim() || "No feedback received.",
-      chatbotReasoning: reasoning ? "Revised Flawed Reasoning: " + reasoning.trim() : "No revised reasoning."
+      chatbotReasoning: reasoning
+        ? "Revised Flawed Reasoning: " + reasoning.trim()
+        : "No revised reasoning.",
     };
   } catch (error) {
     console.error("❌ OpenAI API Error:", error);

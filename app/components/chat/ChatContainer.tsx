@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Send } from "lucide-react";
+import { MessageSquare, Pyramid, Send } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import LoadingDots from "./LoadingDots";
@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import InstructionBubble from "./InstructionBubble";
 import getEvaluationAndUpdatedReasoning from "@/app/actions/getEvaluationAndUpdatedReasoning";
 import logUserAction from "@/app/actions/logUserAction";
+import { Badge } from "@/components/ui/badge";
 
 const ChatContainer: React.FC = () => {
   const { getSessionData, currentPageNumber, currentPage, addMessage } =
@@ -30,7 +31,7 @@ const ChatContainer: React.FC = () => {
     initialIncorrectReasoning,
   } = page;
 
-  const messages = page.messages;
+  const messages = sessionData.messages;
 
   // Scroll to bottom whenever messages change
   useEffect(() => {
@@ -96,6 +97,17 @@ const ChatContainer: React.FC = () => {
       <div className="flex-1 overflow-hidden">
         <ScrollArea className="h-full" ref={scrollAreaRef}>
           <div className="flex flex-col gap-3">
+            <div className="bg-neutral-100 font-semibold p-4">
+              <Badge className="bg-white text-neutral-700 rounded-xs">
+                <Pyramid />
+                Instruction
+              </Badge>
+              <p className="mt-2 text-neutral-700">
+                With the help of AI Assistant, fix the Stupid AI's reasoning of
+                the image. When you are satisfied with the AI's revised
+                reasoning, click on the "Next" button.
+              </p>
+            </div>
             {messages.map((message, index) => {
               switch (message.role) {
                 case "instruction":

@@ -13,7 +13,6 @@ export const tutorSessionsTable = pgTable("tutor_sessions", {
   participantEmail: varchar("participant_email", { length: 255 }).notNull(),
   startedAt: timestamp("started_at").defaultNow(),
   endedAt: timestamp("ended_at"),
-  currentPageNumber: integer("current_page_number").default(0),
 });
 
 export const chatMessagesTable = pgTable("chat_messages", {
@@ -28,7 +27,7 @@ export const chatMessagesTable = pgTable("chat_messages", {
   role: varchar("role", { length: 255 }).notNull(),
   type: varchar("type", { length: 255 }).notNull(),
   content: text("content").notNull(),
-  createdAt: timestamp("created_at"),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const userActionLogsTable = pgTable("user_action_logs", {
@@ -44,5 +43,5 @@ export const userActionLogsTable = pgTable("user_action_logs", {
     .notNull(),
   pageTitle: varchar("page_title", { length: 255 }).notNull(),
   action: text("action").notNull(),
-  createdAt: timestamp("timestamp"),
+  createdAt: timestamp("timestamp").defaultNow(),
 });

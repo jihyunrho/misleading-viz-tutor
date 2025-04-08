@@ -9,10 +9,9 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { useTutorSessionStore } from "@/stores/tutorSessionStore";
-import { getTutorPages } from "@/lib/generate-tutor-pages-data";
 import createTutorSession from "@/app/actions/createTutorSession";
 import logUserAction from "@/app/actions/logUserAction";
-import getClientInfo from "@/utils/getClientInfo";
+import getClientInfo from "@/lib/getClientInfo";
 
 export default function Home() {
   const [name, setName] = useState("");
@@ -26,8 +25,6 @@ export default function Home() {
     e.preventDefault();
     setIsLoading(true);
 
-    const { ipAddr, userAgent } = await getClientInfo();
-
     // ADD A NEW ROW TO THE TUTOR_SESSIONS TABLE
     const createResult = await createTutorSession({
       participantName: name,
@@ -39,8 +36,6 @@ export default function Home() {
 
       setSession({
         sessionId,
-        ipAddr: ipAddr,
-        userAgent: userAgent,
         participantName: name,
         participantEmail: email,
         messages: [],

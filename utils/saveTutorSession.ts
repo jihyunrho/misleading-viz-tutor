@@ -7,7 +7,7 @@ export function saveTutorSession(debounce = true) {
 
   const payload = {
     currentPageIndex: state.currentPageIndex,
-    messages: state.pages[state.currentPageIndex]?.messages ?? [],
+    messages: state.messages ?? [],
   };
 
   const doSave = () => {

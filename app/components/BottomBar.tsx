@@ -37,6 +37,10 @@ export default function BottomBar() {
       });
 
       nextPage();
+
+      router.push(
+        `/tutor-session/${sessionId}/tutor-page/${currentPageNumber()}`
+      );
     }
   };
 

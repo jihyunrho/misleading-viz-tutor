@@ -3,7 +3,7 @@ import { db } from "@/db"; // your Drizzle DB instance
 import { tutorSessionsTable, chatMessagesTable } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
-import { ChatMessage, TutorSessionData } from "@/stores/tutorSessionStore";
+import { TutorSessionData } from "@/stores/tutorSessionStore";
 
 export async function GET(
   req: NextRequest,
@@ -11,25 +11,23 @@ export async function GET(
 ) {
   const { sessionId } = await params;
 
-  const [session] = await db
+  const result = await db
     .select()
     .from(tutorSessionsTable)
+    .leftJoin(
+      chatMessagesTable,
+      eq(tutorSessionsTable.sessionId, chatMessagesTable.sessionId)
+    )
     .where(eq(tutorSessionsTable.sessionId, sessionId));
 
-  if (!session) {
+  if (result.length === 0) {
     return NextResponse.json({ error: "Session not found" }, { status: 404 });
   }
 
-  const messages = await db
-    .select()
-    .from(chatMessagesTable)
-    .where(eq(chatMessagesTable.sessionId, sessionId));
-
-  const pages = groupMessagesIntoPages(messages); // helper below
+  const { tutor_sessions: session } = result[0];
 
   return NextResponse.json({
     ...session,
-    pages,
   });
 }
 
@@ -66,21 +64,4 @@ export async function PATCH(
   }
 
   return NextResponse.json({ success: true });
-}
-
-// Helper to reshape chatMessages into TutorPage[]
-function groupMessagesIntoPages(messages: any[]): TutorSessionData["pages"] {
-  const grouped = new Map<number, ChatMessage[]>();
-
-  messages.forEach((msg) => {
-    if (!grouped.has(msg.pageNumber)) grouped.set(msg.pageNumber, []);
-    grouped.get(msg.pageNumber)?.push({
-      role: msg.role,
-      type: msg.type,
-      content: msg.content,
-      createdAt: msg.createdAt,
-    });
-  });
-
-  return [];
 }

@@ -1,22 +1,9 @@
 "use client";
 import { create } from "zustand";
 import { tutorPagesData } from "@/data/tutor-pages-data";
-
-export type ChatMessage = {
-  role: "system" | "user" | "assistant" | "chatbot" | "instruction";
-  type: "user" | "assistant-feedback" | "chatbot-reasoning" | "instruction";
-  content: string;
-  createdAt?: string;
-};
-
-export type TutorPage = {
-  instruction: string;
-  imageTitle: string;
-  imageFilename: string;
-  misleadingFeature: string;
-  initialIncorrectReasoning: string | null;
-  messages: ChatMessage[];
-};
+import { InferSelectModel } from "drizzle-orm";
+import { tutorSessionsTable, chatMessagesTable } from "@/db/schema";
+import { TutorPage, ChatMessage, ChatMessageInsertWithMeta } from "@/types";
 
 // Core session data
 export type TutorSessionData = {
@@ -28,14 +15,18 @@ export type TutorSessionData = {
   startTime: string;
   endTime: string | null;
   currentPageIndex: number;
-  messages: ChatMessage[];
+  messages: (ChatMessage | ChatMessageInsertWithMeta)[];
 };
 
 // Store type extends the data with methods
 type TutorSessionStore = TutorSessionData & {
   // Methods
   setSession: (session: Partial<TutorSessionData>) => void;
-  addMessage: (message: ChatMessage) => void;
+  addMessageToState: (message: ChatMessageInsertWithMeta) => void;
+  replaceMessage: (
+    tempId: string,
+    newMessage: ChatMessageInsertWithMeta
+  ) => void;
   nextPage: () => void;
   prevPage: () => void;
   currentPage: () => TutorPage | null;
@@ -70,14 +61,17 @@ export const useTutorSessionStore = create<TutorSessionStore>((set, get) => ({
     }));
   },
 
-  addMessage: (message) => {
-    const messageWithTimestamp = {
-      ...message,
-      createdAt: message.createdAt || new Date().toISOString(),
-    };
-
+  addMessageToState: (message) => {
     set((state) => ({
-      messages: [...state.messages, messageWithTimestamp],
+      messages: [...state.messages, message],
+    }));
+  },
+
+  replaceMessage: (tempId, newMessage) => {
+    set((state) => ({
+      messages: state.messages.map((msg) =>
+        "tempId" in msg && msg.tempId === tempId ? newMessage : msg
+      ),
     }));
   },
 
