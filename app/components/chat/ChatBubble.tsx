@@ -1,9 +1,9 @@
-import { ChatMessage } from "@/stores/tutorSessionStore";
+import { ChatMessageForView } from "@/types";
 import { cn } from "@/lib/utils";
 import { Bot, User as UserIcon } from "lucide-react";
 
 type ChatBubbleProps = {
-  message: ChatMessage;
+  message: ChatMessageForView;
 };
 
 export default function ChatBubble(props: ChatBubbleProps) {

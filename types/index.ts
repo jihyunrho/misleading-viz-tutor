@@ -12,7 +12,7 @@ export type TutorPage = {
   imageTitle: string;
   imageFilename: string;
   misleadingFeature: string;
-  initialIncorrectReasoning: string | null;
+  initialIncorrectReasoning: string;
 };
 
 export type ChatMessageInput = {
@@ -26,3 +26,5 @@ export type ChatMessageInsert = typeof chatMessagesTable.$inferInsert;
 export type ChatMessageInsertWithMeta = ChatMessageInsert & {
   tempId: string;
 };
+
+export type ChatMessageForView = ChatMessage | ChatMessageInsertWithMeta;

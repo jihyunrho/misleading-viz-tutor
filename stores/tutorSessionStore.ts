@@ -1,7 +1,12 @@
 "use client";
 import { create } from "zustand";
 import { tutorPagesData } from "@/data/tutor-pages-data";
-import { TutorPage, ChatMessage, ChatMessageInsertWithMeta } from "@/types";
+import {
+  TutorPage,
+  ChatMessage,
+  ChatMessageInsertWithMeta,
+  ChatMessageForView,
+} from "@/types";
 
 // Core session data
 export type TutorSessionData = {
@@ -13,7 +18,7 @@ export type TutorSessionData = {
   startedAt: Date | null;
   endedAt: Date | null;
   currentPageIndex: number;
-  messages: (ChatMessage | ChatMessageInsertWithMeta)[];
+  messages: ChatMessageForView[];
 };
 
 // Store type extends the data with methods
@@ -28,7 +33,7 @@ type TutorSessionStore = TutorSessionData & {
   getSessionData: () => TutorSessionData;
   addMessage: (messageInput: ChatMessageInsertWithMeta) => void;
   replaceMessage: (tempId: string, newMessage: ChatMessage) => void;
-  getCurrentMessages: () => (ChatMessage | ChatMessageInsertWithMeta)[];
+  getCurrentMessages: () => ChatMessageForView[];
 };
 
 const initialState: TutorSessionData = {

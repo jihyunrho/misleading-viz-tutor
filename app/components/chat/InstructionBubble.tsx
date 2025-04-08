@@ -1,9 +1,9 @@
 import { Badge } from "@/components/ui/badge";
-import { ChatMessage } from "@/stores/tutorSessionStore";
+import { ChatMessageForView } from "@/types";
 import { Bot, Pyramid, User as UserIcon } from "lucide-react";
 
 type InstructionBubbleProps = {
-  message: ChatMessage;
+  message: ChatMessageForView;
 };
 
 export default function InstructionBubble(props: InstructionBubbleProps) {

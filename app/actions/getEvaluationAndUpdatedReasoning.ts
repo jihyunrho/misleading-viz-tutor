@@ -7,7 +7,7 @@ type FunctionParams = {
   imageTitle: string;
   imageFilename: string;
   misleadingFeature: string;
-  firstIncorrectReasoning: string;
+  initialIncorrectReasoning: string;
   userCorrection: string;
 };
 
@@ -27,7 +27,7 @@ type EvaluationResult = {
  * @param params.imageTitle - Title of the visualization being analyzed
  * @param params.imageFilename - Name of the visualization image file
  * @param params.misleadingFeature - The specific misleading element in the visualization
- * @param params.firstIncorrectReasoning - The initial incorrect reasoning shown to the user
+ * @param params.initialIncorrectReasoning - The initial incorrect reasoning shown to the user
  * @param params.userCorrection - The user's attempt to correct the reasoning
  *
  * @returns A string containing the AI's evaluation of the correction and revised reasoning
@@ -90,7 +90,7 @@ export default async function getEvaluationAndUpdatedReasoning(
     const evalPrompt = `
       Evaluate the user's correction: "${params.userCorrection}".
       If they correctly or partially catch the ${params.misleadingFeature} and the impact of ${params.misleadingFeature}, acknowledge it briefly (1 sentence) but do not explicitly give a hint (or mention a misleading feature). -- no direct answer.
-      Then, in a new paragraph, based on "${params.userCorrection}" to the impact of ${params.misleadingFeature}, provide a revised version of the ${params.firstIncorrectReasoning} according to ${params.userCorrection}. The revised reasoning should starting by "Revised Flawed Reasoning: ".
+      Then, in a new paragraph, based on "${params.userCorrection}" to the impact of ${params.misleadingFeature}, provide a revised version of the ${params.initialIncorrectReasoning} according to ${params.userCorrection}. The revised reasoning should starting by "Revised Flawed Reasoning: ".
       
       However, if the user's correction is wrong, incorrect, vague, or out of context, then give encouraging message (1 sentence) with little thin level of scaffolding for correction, but do not explicitly give hint. -- no direct answer.
       Here, do not provide any revision for the original flawed reasoning.
@@ -113,7 +113,8 @@ export default async function getEvaluationAndUpdatedReasoning(
     } while (runStatus.status !== "completed");
 
     const messages = await openai.beta.threads.messages.list(thread.id);
-    const fullText = messages.data[0].content[0].text.value;
+    const firstContent = messages.data[0].content[0];
+    const fullText = "text" in firstContent ? firstContent.text.value : "";
 
     // "Revised Flawed Reasoning:" 기준으로 두 부분 분리
     const [feedback, reasoning] = fullText.split("Revised Flawed Reasoning:");

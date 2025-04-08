@@ -56,17 +56,11 @@ const ChatContainer: React.FC = () => {
       type: "user",
       content: input,
     });
-
     const { success: userMessageInsertSuccess, data: newUserMessageData } =
       await addMessageToDB(tempUserMessage);
-
-    console.log(
-      `userMessageInsertSuccess`,
-      userMessageInsertSuccess,
-      newUserMessageData
-    );
-
-    replaceMessage(tempUserMessage.tempId, newUserMessageData!);
+    if (userMessageInsertSuccess && newUserMessageData) {
+      replaceMessage(tempUserMessage.tempId, newUserMessageData!);
+    }
 
     await logUserAction({
       sessionData,
@@ -74,31 +68,48 @@ const ChatContainer: React.FC = () => {
       action: `The participant has typed a message: "${input}".`,
     });
 
-    // const { assistantFeedback, chatbotReasoning } =
-    //   await getEvaluationAndUpdatedReasoning({
-    //     imageTitle,
-    //     imageFilename,
-    //     misleadingFeature,
-    //     firstIncorrectReasoning: initialIncorrectReasoning!,
-    //     userCorrection: input,
-    //   });
+    const { assistantFeedback, chatbotReasoning } =
+      await getEvaluationAndUpdatedReasoning({
+        imageTitle: page.imageTitle,
+        imageFilename: page.imageFilename,
+        misleadingFeature: page.misleadingFeature,
+        initialIncorrectReasoning: page.initialIncorrectReasoning,
+        userCorrection: input,
+      });
 
-    // addTemporaryChatMessage({
-    //   role: "assistant",
-    //   type: "assistant-feedback",
-    //   content: assistantFeedback,
-    // });
-    // addTemporaryChatMessage({
-    //   role: "chatbot",
-    //   type: "chatbot-reasoning",
-    //   content: chatbotReasoning,
-    // });
+    const tempAssistantFeedback = addTemporaryChatMessage({
+      role: "assistant",
+      type: "assistant-feedback",
+      content: assistantFeedback,
+    });
 
-    // await logUserAction({
-    //   sessionData,
-    //   pageTitle: `Page ${currentPageNumber()} - ${page.imageTitle}`,
-    //   action: `The bot responded with assistant + chatbot messages.`,
-    // });
+    const {
+      success: assistantFeedbackInsertSuccess,
+      data: newAssistantFeedbackData,
+    } = await addMessageToDB(tempAssistantFeedback);
+    if (assistantFeedbackInsertSuccess && newAssistantFeedbackData) {
+      replaceMessage(tempAssistantFeedback.tempId, newAssistantFeedbackData!);
+    }
+
+    const tempChatbotReasoning = addTemporaryChatMessage({
+      role: "chatbot",
+      type: "chatbot-reasoning",
+      content: chatbotReasoning,
+    });
+
+    const {
+      success: chatbotReasoningInsertSuccess,
+      data: newChatbotReasoningData,
+    } = await addMessageToDB(tempChatbotReasoning);
+    if (chatbotReasoningInsertSuccess && newChatbotReasoningData) {
+      replaceMessage(tempChatbotReasoning.tempId, newChatbotReasoningData);
+    }
+
+    await logUserAction({
+      sessionData,
+      pageTitle: `Page ${currentPageNumber()} - ${page.imageTitle}`,
+      action: `The bot responded with assistant + chatbot messages. Reasoning: "${chatbotReasoning}", Feedback: "${assistantFeedback}".`,
+    });
 
     setInput("");
 

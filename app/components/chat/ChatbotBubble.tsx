@@ -1,8 +1,8 @@
 import React from "react";
-import { ChatMessage } from "@/stores/tutorSessionStore";
+import { ChatMessageForView } from "@/types";
 
 interface Props {
-  message: ChatMessage;
+  message: ChatMessageForView;
   initialIncorrectReasoning: string;
 }
 
