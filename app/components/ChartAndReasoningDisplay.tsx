@@ -32,8 +32,6 @@ export default function ChartAndReasoningDisplay() {
     ...currentMessages().filter((m) => m.role === "chatbot"),
   ];
 
-  console.log("chatbotMessages", chatbotMessages);
-
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 

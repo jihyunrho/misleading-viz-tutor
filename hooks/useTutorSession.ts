@@ -121,7 +121,6 @@ export function useTutorSession() {
       }
 
       const data = await response.json();
-      console.log("Session endedAt time recorded successfully:", data.endedAt);
 
       store.setSession({ endedAt: data.endedAt });
     } catch (error) {

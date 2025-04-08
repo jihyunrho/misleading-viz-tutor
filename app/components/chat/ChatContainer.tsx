@@ -16,6 +16,7 @@ import { addMessageToDB } from "@/app/actions/addMessageToDB";
 
 const ChatContainer: React.FC = () => {
   const {
+    sessionId,
     setSession,
     getSessionData,
     currentPageNumber,
@@ -76,6 +77,7 @@ const ChatContainer: React.FC = () => {
     // Fetch evaluation and reasoning
     const { assistantFeedback, chatbotReasoning } =
       await getEvaluationAndUpdatedReasoning({
+        sessionId: sessionId,
         imageTitle: page.imageTitle,
         imageFilename: page.imageFilename,
         misleadingFeature: page.misleadingFeature,

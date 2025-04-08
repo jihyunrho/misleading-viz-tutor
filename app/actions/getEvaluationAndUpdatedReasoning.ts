@@ -2,8 +2,10 @@
 
 import OpenAI from "openai";
 import getGitHubImageUrl from "@/lib/getGitHubImageUrl";
+import { getOrCreateThreadId } from "@/app/actions/getOrCreateThreadId";
 
 type FunctionParams = {
+  sessionId: string;
   imageTitle: string;
   imageFilename: string;
   misleadingFeature: string;
@@ -16,23 +18,6 @@ type EvaluationResult = {
   chatbotReasoning: string;
 };
 
-/**
- * Evaluates a user's correction to a misleading visualization reasoning and provides updated feedback
- *
- * This server action takes information about a visualization, an initial incorrect reasoning,
- * and the user's attempted correction. It then uses OpenAI's GPT-4o to generate an evaluation
- * of the user's correction along with an improved reasoning about the visualization.
- *
- * @param params - Object containing visualization details and user interaction data
- * @param params.imageTitle - Title of the visualization being analyzed
- * @param params.imageFilename - Name of the visualization image file
- * @param params.misleadingFeature - The specific misleading element in the visualization
- * @param params.initialIncorrectReasoning - The initial incorrect reasoning shown to the user
- * @param params.userCorrection - The user's attempt to correct the reasoning
- *
- * @returns A string containing the AI's evaluation of the correction and revised reasoning
- * @throws Error if the OpenAI API key is not configured or if the API request fails
- */
 export default async function getEvaluationAndUpdatedReasoning(
   params: FunctionParams
 ): Promise<EvaluationResult> {
@@ -42,7 +27,6 @@ export default async function getEvaluationAndUpdatedReasoning(
 
     const openai = new OpenAI({ apiKey });
 
-    // Assistant 생성 (개발 단계에서는 매번 생성해도 되고, 나중에는 ID 재사용 추천)
     const assistant = await openai.beta.assistants.create({
       name: "Visualization Reasoning Tutor",
       model: "gpt-4o",
@@ -57,17 +41,20 @@ export default async function getEvaluationAndUpdatedReasoning(
       `,
     });
 
-    const thread = await openai.beta.threads.create();
+    const threadId = await getOrCreateThreadId({
+      sessionId: params.sessionId,
+      imageFilename: params.imageFilename,
+    });
 
     // 1. Generating the flawed reasoning message
     const flawedPrompt = `
-      You are a misled person who is deceived by ${params.misleadingFeature} in this ${params.imageTitle} and makes a flawed decision.
+      You are a misled person who is deceived by ${params.misleadingFeature} in this ${params.imageTitle} and make a flawed decision.
       Say one sentence flawed reasoning about this misleading visualization as you are misled by the impact of ${params.misleadingFeature}.
       Do not mention the exact number or values in the visualization in your flawed reasoning, but just a typical flawed reasoning as the person who is deceived by the impact of ${params.misleadingFeature}.
       Do not say like "one might assume incorrectly~", you are role playing a person who is not good at correct reasoning for misleading visualization.
     `;
 
-    await openai.beta.threads.messages.create(thread.id, {
+    await openai.beta.threads.messages.create(threadId, {
       role: "user",
       content: [
         { type: "text", text: flawedPrompt },
@@ -81,7 +68,7 @@ export default async function getEvaluationAndUpdatedReasoning(
     });
 
     // 2. 사용자 교정 입력
-    await openai.beta.threads.messages.create(thread.id, {
+    await openai.beta.threads.messages.create(threadId, {
       role: "user",
       content: params.userCorrection,
     });
@@ -96,27 +83,25 @@ export default async function getEvaluationAndUpdatedReasoning(
       Here, do not provide any revision for the original flawed reasoning.
     `;
 
-    await openai.beta.threads.messages.create(thread.id, {
+    await openai.beta.threads.messages.create(threadId, {
       role: "user",
       content: evalPrompt,
     });
 
-    // Assistant 실행
-    const run = await openai.beta.threads.runs.create(thread.id, {
+    const run = await openai.beta.threads.runs.create(threadId, {
       assistant_id: assistant.id,
     });
 
     let runStatus;
     do {
-      runStatus = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+      runStatus = await openai.beta.threads.runs.retrieve(threadId, run.id);
       await new Promise((res) => setTimeout(res, 1000));
     } while (runStatus.status !== "completed");
 
-    const messages = await openai.beta.threads.messages.list(thread.id);
+    const messages = await openai.beta.threads.messages.list(threadId);
     const firstContent = messages.data[0].content[0];
     const fullText = "text" in firstContent ? firstContent.text.value : "";
 
-    // "Revised Flawed Reasoning:" 기준으로 두 부분 분리
     const [feedback, reasoning] = fullText.split("Revised Flawed Reasoning:");
 
     return {

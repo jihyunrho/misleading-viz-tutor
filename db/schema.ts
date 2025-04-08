@@ -5,6 +5,7 @@ import {
   timestamp,
   integer,
   text,
+  unique,
 } from "drizzle-orm/pg-core";
 
 export const tutorSessionsTable = pgTable("tutor_sessions", {
@@ -14,6 +15,20 @@ export const tutorSessionsTable = pgTable("tutor_sessions", {
   startedAt: timestamp("started_at").defaultNow(),
   endedAt: timestamp("ended_at"),
 });
+
+export const threadIdsTable = pgTable(
+  "thread_id",
+  {
+    threadId: varchar("thread_id", { length: 64 }).notNull(),
+    sessionId: varchar("session_id", { length: 36 })
+      .references(() => tutorSessionsTable.sessionId, {
+        onDelete: "cascade",
+      })
+      .notNull(),
+    imageFilename: varchar("image_filename", { length: 255 }).notNull(),
+  },
+  (t) => [unique().on(t.sessionId, t.imageFilename)]
+);
 
 export const chatMessagesTable = pgTable("chat_messages", {
   id: serial("id").primaryKey(),
