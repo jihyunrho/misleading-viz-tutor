@@ -7,11 +7,4 @@ export const tutorPagesData: TutorPage[] = visualizationImages.map((image) => ({
   imageFilename: image.imageFilename,
   misleadingFeature: image.misleadingFeature,
   initialIncorrectReasoning: image.initialIncorrectReasoning,
-  messages: [
-    {
-      role: "instruction",
-      type: "instruction",
-      content: `Explain why the AI chatbot's first interpretation of the ${image.imageTitle} is incorrect.`,
-    },
-  ],
 }));
