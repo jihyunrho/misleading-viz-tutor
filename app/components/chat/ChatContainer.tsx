@@ -54,18 +54,26 @@ const ChatContainer: React.FC = () => {
       type: "user",
       content: input,
     });
-    const { success: userMessageInsertSuccess, data: newUserMessageData } =
-      await addMessageToDB(tempUserMessage);
-    if (userMessageInsertSuccess && newUserMessageData) {
-      replaceMessage(tempUserMessage.tempId, newUserMessageData!);
-    }
 
-    await logUserAction({
+    // Insert user message into DB and log the action concurrently
+    const userMessagePromise = addMessageToDB(tempUserMessage).then(
+      ({ success, data }) => {
+        if (success && data) {
+          replaceMessage(tempUserMessage.tempId, data);
+        }
+      }
+    );
+
+    const logUserActionPromise = logUserAction({
       sessionData,
       pageTitle: `Page ${currentPageNumber()} - ${page.imageTitle}`,
       action: `The participant has typed a message: "${input}".`,
     });
 
+    // Wait for both promises to complete
+    await Promise.all([userMessagePromise, logUserActionPromise]);
+
+    // Fetch evaluation and reasoning
     const { assistantFeedback, chatbotReasoning } =
       await getEvaluationAndUpdatedReasoning({
         imageTitle: page.imageTitle,
@@ -75,19 +83,12 @@ const ChatContainer: React.FC = () => {
         userCorrection: input,
       });
 
+    // Create temporary assistant and chatbot messages
     const tempAssistantFeedback = createTemporaryChatMessage({
       role: "assistant",
       type: "assistant-feedback",
       content: assistantFeedback,
     });
-
-    const {
-      success: assistantFeedbackInsertSuccess,
-      data: newAssistantFeedbackData,
-    } = await addMessageToDB(tempAssistantFeedback);
-    if (assistantFeedbackInsertSuccess && newAssistantFeedbackData) {
-      replaceMessage(tempAssistantFeedback.tempId, newAssistantFeedbackData!);
-    }
 
     const tempChatbotReasoning = createTemporaryChatMessage({
       role: "chatbot",
@@ -95,23 +96,39 @@ const ChatContainer: React.FC = () => {
       content: chatbotReasoning,
     });
 
-    const {
-      success: chatbotReasoningInsertSuccess,
-      data: newChatbotReasoningData,
-    } = await addMessageToDB(tempChatbotReasoning);
-    if (chatbotReasoningInsertSuccess && newChatbotReasoningData) {
-      replaceMessage(tempChatbotReasoning.tempId, newChatbotReasoningData);
-    }
+    // Insert assistant and chatbot messages into DB concurrently
+    const assistantFeedbackPromise = addMessageToDB(tempAssistantFeedback).then(
+      ({ success, data }) => {
+        if (success && data) {
+          replaceMessage(tempAssistantFeedback.tempId, data);
+        }
+      }
+    );
 
-    await logUserAction({
+    const chatbotReasoningPromise = addMessageToDB(tempChatbotReasoning).then(
+      ({ success, data }) => {
+        if (success && data) {
+          replaceMessage(tempChatbotReasoning.tempId, data);
+        }
+      }
+    );
+
+    // Log the bot's response concurrently
+    const logBotActionPromise = logUserAction({
       sessionData,
       pageTitle: `Page ${currentPageNumber()} - ${page.imageTitle}`,
       action: `The bot responded with assistant + chatbot messages. Reasoning: "${chatbotReasoning}", Feedback: "${assistantFeedback}".`,
     });
 
-    setInput("");
+    // Wait for all promises to complete
+    await Promise.all([
+      assistantFeedbackPromise,
+      chatbotReasoningPromise,
+      logBotActionPromise,
+    ]);
 
-    // Set waiting state back to false after response
+    // Clear input and reset waiting state
+    setInput("");
     setSession({ isWaitingForChatbotResponse: false });
   };
 
