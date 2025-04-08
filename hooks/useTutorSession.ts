@@ -25,15 +25,6 @@ export function useTutorSession() {
 
   const [isLoading, setIsLoading] = useState(!isAlreadyHydrated);
 
-  console.log(
-    "useTutorSession: sessionId =",
-    sessionId,
-    "isAlreadyHydrated =",
-    isAlreadyHydrated,
-    "currentSessionId =",
-    currentSessionId
-  );
-
   useEffect(() => {
     if (!sessionId) return;
 
@@ -52,8 +43,6 @@ export function useTutorSession() {
         return res.json();
       })
       .then((data) => {
-        console.log("Hydrated session data:", data);
-
         const { session: hydratedSession, messages: hydratedMessages } =
           data as {
             session: Partial<TutorSessionData>;
@@ -78,6 +67,16 @@ export function useTutorSession() {
         throw err; // Will be caught by nearest error boundary
       });
   }, [sessionId, isAlreadyHydrated]);
+
+  useEffect(() => {
+    if (!isAlreadyHydrated) return;
+    if (typeof pageNumber === "number") {
+      const index = pageNumber - 1;
+      if (store.currentPageIndex !== index) {
+        store.setSession({ currentPageIndex: index });
+      }
+    }
+  }, [pageNumber, isAlreadyHydrated]);
 
   const addTemporaryChatMessage = (params: ChatMessageInput) => {
     const { role, type, content } = params;

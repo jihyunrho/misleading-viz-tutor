@@ -27,10 +27,7 @@ type TutorSessionStore = TutorSessionData & {
   isLastPage: () => boolean;
   getSessionData: () => TutorSessionData;
   addMessage: (messageInput: ChatMessageInsertWithMeta) => void;
-  replaceMessage: (
-    tempId: string,
-    newMessage: ChatMessageInsertWithMeta
-  ) => void;
+  replaceMessage: (tempId: string, newMessage: ChatMessage) => void;
   getCurrentMessages: () => (ChatMessage | ChatMessageInsertWithMeta)[];
 };
 

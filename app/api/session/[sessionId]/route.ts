@@ -25,8 +25,6 @@ export async function GET(
     return NextResponse.json({ error: "Session not found" }, { status: 404 });
   }
 
-  console.log("Fetched session data:", result);
-
   // Extract session from the first result
   const session: Partial<TutorSessionData> = result[0].tutor_sessions;
 

@@ -23,6 +23,8 @@ const ChatContainer: React.FC = () => {
     currentPageNumber,
     currentPage,
     addTemporaryChatMessage,
+    replaceMessage,
+    getCurrentMessages,
   } = useTutorSession();
   const [input, setInput] = useState("");
   const [isWaitingForResponse, setIsWaitingForResponse] = useState(false);
@@ -32,7 +34,7 @@ const ChatContainer: React.FC = () => {
   const sessionData = getSessionData();
   const page = currentPage()!;
 
-  const messages = sessionData.messages;
+  const messages = getCurrentMessages();
 
   // Scroll to bottom whenever messages change
   useEffect(() => {
@@ -63,6 +65,8 @@ const ChatContainer: React.FC = () => {
       userMessageInsertSuccess,
       newUserMessageData
     );
+
+    replaceMessage(tempUserMessage.tempId, newUserMessageData!);
 
     await logUserAction({
       sessionData,

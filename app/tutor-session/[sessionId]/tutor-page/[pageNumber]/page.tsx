@@ -29,8 +29,6 @@ export default function TutorSessionPage() {
   }, [sessionData.sessionId, router, isLoading]);
 
   useEffect(() => {
-    console.log(`page data: ${JSON.stringify(page)}`);
-
     if (
       !sessionData.sessionId ||
       !sessionData.ipAddr ||
@@ -52,8 +50,6 @@ export default function TutorSessionPage() {
     sessionData.userAgent,
     currentPageIndex,
   ]);
-
-  console.log(`page: ${JSON.stringify(page)}`);
 
   return page ? (
     <div className="flex flex-col h-screen max-h-screen overflow-hidden bg-background">
