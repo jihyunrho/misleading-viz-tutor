@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import ChatContainer from "@/app/components/chat/ChatContainer";
 import BottomBar from "@/app/components/BottomBar";
-import ChartDisplay from "@/app/components/ChartDisplay";
+import ChartAndReasoningDisplay from "@/app/components/ChartAndReasoningDisplay";
 import logUserAction from "@/app/actions/logUserAction";
 import { useTutorSession } from "@/hooks/useTutorSession";
 
@@ -55,7 +55,7 @@ export default function TutorSessionPage() {
     <div className="flex flex-col h-screen max-h-screen overflow-hidden bg-background">
       <div className="flex-1 h-full grid grid-cols-2 overflow-hidden">
         <div className="flex h-full overflow-hidden">
-          <ChartDisplay />
+          <ChartAndReasoningDisplay />
         </div>
 
         <div className="flex h-full overflow-hidden">

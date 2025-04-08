@@ -2,11 +2,11 @@ import { ChatMessageForView } from "@/types";
 import { cn } from "@/lib/utils";
 import { Bot, User as UserIcon } from "lucide-react";
 
-type ChatBubbleProps = {
+type ChatbotReasoningBox = {
   message: ChatMessageForView;
 };
 
-export default function ChatBubble(props: ChatBubbleProps) {
+export default function ChatBubble(props: ChatbotReasoningBox) {
   return (
     <div
       className={cn(
@@ -19,14 +19,14 @@ export default function ChatBubble(props: ChatBubbleProps) {
       <div className="flex items-center gap-1 mb-1">
         {props.message.role === "assistant" ? (
           <>
-            <Bot className="h-4 w-4 text-green-600" />
+            🧠
             <span className="text-xs font-medium text-neutral-600">
               {props.message.role === "assistant" ? "AI Assistant" : "Me"}
             </span>
           </>
         ) : (
           <>
-            <UserIcon className="h-4 w-4 text-sky-600" />
+            <UserIcon className="h-4 w-4 text-blue-500" />
             <span className="text-xs font-medium text-neutral-500">Me</span>
           </>
         )}
@@ -34,10 +34,10 @@ export default function ChatBubble(props: ChatBubbleProps) {
 
       <div
         className={cn(
-          "rounded-sm p-3",
+          "rounded-md p-3 text-sm",
           props.message.role === "assistant"
-            ? "bg-green-50 text-green-600 rounded-tl-none"
-            : "bg-blue-50 text-sky-600 rounded-tr-none"
+            ? "bg-neutral-100  text-neutral-800 rounded-tl-none"
+            : "bg-blue-50 text-blue-700 rounded-tr-none"
         )}
       >
         {props.message.content}

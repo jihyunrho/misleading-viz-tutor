@@ -78,7 +78,10 @@ export function useTutorSession() {
     }
   }, [pageNumber, isAlreadyHydrated]);
 
-  const addTemporaryChatMessage = (params: ChatMessageInput) => {
+  const createTemporaryChatMessage = (
+    params: ChatMessageInput,
+    addToStore: boolean = true
+  ) => {
     const { role, type, content } = params;
 
     const tempMessage: ChatMessageInsertWithMeta = {
@@ -91,7 +94,7 @@ export function useTutorSession() {
       content,
     };
 
-    store.addMessage(tempMessage);
+    if (addToStore) store.addMessage(tempMessage);
 
     return tempMessage;
   };
@@ -100,6 +103,6 @@ export function useTutorSession() {
     sessionData: store.getSessionData(),
     isLoading,
     ...store,
-    addTemporaryChatMessage,
+    createTemporaryChatMessage,
   };
 }

@@ -19,6 +19,7 @@ export type TutorSessionData = {
   endedAt: Date | null;
   currentPageIndex: number;
   messages: ChatMessageForView[];
+  isWaitingForChatbotResponse: boolean;
 };
 
 // Store type extends the data with methods
@@ -33,7 +34,7 @@ type TutorSessionStore = TutorSessionData & {
   getSessionData: () => TutorSessionData;
   addMessage: (messageInput: ChatMessageInsertWithMeta) => void;
   replaceMessage: (tempId: string, newMessage: ChatMessage) => void;
-  getCurrentMessages: () => ChatMessageForView[];
+  currentMessages: () => ChatMessageForView[];
 };
 
 const initialState: TutorSessionData = {
@@ -46,6 +47,7 @@ const initialState: TutorSessionData = {
   endedAt: null,
   currentPageIndex: -1,
   messages: [],
+  isWaitingForChatbotResponse: false,
 };
 
 // Should use the useTutorSession to hydrate from the Database
@@ -103,6 +105,7 @@ export const _useTutorSessionStore = create<TutorSessionStore>((set, get) => ({
       endedAt: state.endedAt,
       currentPageIndex: state.currentPageIndex,
       messages: state.messages,
+      isWaitingForChatbotResponse: state.isWaitingForChatbotResponse,
     };
   },
 
@@ -120,7 +123,7 @@ export const _useTutorSessionStore = create<TutorSessionStore>((set, get) => ({
     }));
   },
 
-  getCurrentMessages: () => {
+  currentMessages: () => {
     const { currentPage, messages } = get();
 
     return messages.filter(
