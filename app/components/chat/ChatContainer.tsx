@@ -143,8 +143,8 @@ const ChatContainer: React.FC = () => {
             Instruction
           </Badge>
           <p className="mt-2 font-semibold">
-            With the help of AI Assistant, fix the AI's reasoning of the visual.
-            When you are satisfied with the AI's revised reasoning, click on the
+            With the help of AI Assistant, fix the AI VizBluff's reasoning of the visual.
+            When you are satisfied with the AI VizBluff's revised reasoning, click on the
             "Next" button.
           </p>
         </div>

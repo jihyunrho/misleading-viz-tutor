@@ -67,8 +67,8 @@ export default function ChartAndReasoningDisplay() {
         <h3 className="flex text-neutral-800 justify-between text-sm font-bold py-2 px-4 border-b-1">
           <p>
             {chatbotMessages.length === 0
-              ? "🤖 AI Chatbot's Incorrect Initial Reasoning"
-              : "🤖 AI Chatbot's Initial and Revised Reasoning"}
+              ? "🤖 AI VizBluff's Incorrect Initial Reasoning"
+              : "🤖 AI VizBluff's Initial and Revised Reasoning"}
           </p>
           {isWaitingForChatbotResponse && <Spinner size="xs" />}
         </h3>
