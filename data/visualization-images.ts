@@ -14,12 +14,18 @@ export const visualizationImages: VisualizationImage[] = [
     imageTitle: "Bar Chart of Artists' sales",
     imageFilename: "manipulatedxaxis_bar_artistsales.jpg",
     misleadingFeature: "manipulated x-axis",
-    initialIncorrectReasoning: "To be filled in later",
+    initialIncorrectReasoning: "Drake has more than twice as many views as Eminem. That really shows how much more people are listening to him.",
   },
   {
     imageTitle: "Pie Chart of Covid-19 Worries",
     imageFilename: "over100_pie_covidworries.jpg",
     misleadingFeature: "over 100",
-    initialIncorrectReasoning: "To be filled in later",
+    initialIncorrectReasoning: "Looks like most people are way more worried about the economy than getting sick, just look how big that yellow slice is!",
+  },
+  {
+    imageTitle: "Bar Chart of Number of Artists",
+    imageFilename: "truncatedyaxis_bar_artists.jpg",
+    misleadingFeature: "truncated y-axis",
+    initialIncorrectReasoning: "Whoa, the number of artists making over $1M isn’t that different from those making over $10K—looks like maybe just 3 times more?",
   },
 ];
