@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Info } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -59,7 +60,18 @@ export default function Home() {
       <div className="flex-1 h-full grid grid-cols-2">
         <div className="flex flex-col h-screen justify-center p-8 overflow-auto bg-neutral-100">
           <div>
-            <h1 className="text-xl font-semibold">
+            <div className="flex">
+              <Image
+                src="/images/vizbluff_logo.png"
+                alt="VizBluff Logo"
+                width={267 * 0.5}
+                height={332 * 0.5}
+                className=""
+                priority
+              />
+            </div>
+
+            <h1 className="text-xl font-semibold mt-12">
               Teaching AI about data visualization
             </h1>
             <p className="mt-4">
