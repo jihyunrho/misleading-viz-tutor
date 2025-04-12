@@ -60,3 +60,8 @@ export const userActionLogsTable = pgTable("user_action_logs", {
   action: text("action").notNull(),
   createdAt: timestamp("timestamp").defaultNow(),
 });
+
+export const appConfig = pgTable("app_config", {
+  configKey: varchar("config_key", { length: 255 }).notNull().unique(),
+  configValue: text("config_value"),
+});
