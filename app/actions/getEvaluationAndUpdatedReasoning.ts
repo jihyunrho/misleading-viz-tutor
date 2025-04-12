@@ -3,6 +3,9 @@
 import OpenAI from "openai";
 import getGitHubImageUrl from "@/lib/getGitHubImageUrl";
 import { getOrCreateThreadId } from "@/app/actions/getOrCreateThreadId";
+import { db } from "@/db";
+import { appConfig } from "@/db/schema";
+import { eq } from "drizzle-orm";
 
 type FunctionParams = {
   sessionId: string;
@@ -25,12 +28,26 @@ export default async function getEvaluationAndUpdatedReasoning(
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) throw new Error("OpenAI API key not found");
 
+    // ✅ Fetch assistant ID and model from DB
+    const [assistantRow, modelRow] = await Promise.all([
+      db.query.appConfig.findFirst({
+        where: eq(appConfig.configKey, "OPENAI_ASSISTANT_ID"),
+      }),
+      db.query.appConfig.findFirst({
+        where: eq(appConfig.configKey, "OPENAI_MODEL"),
+      }),
+    ]);
+
+    const assistantId = assistantRow?.configValue;
+    const model = modelRow?.configValue || "gpt-4o";
+
+    if (!assistantId) {
+      throw new Error("Assistant ID not found in app_config table");
+    }
+
     const openai = new OpenAI({ apiKey });
 
-    const assistant = await openai.beta.assistants.create({
-      name: "Visualization Reasoning Tutor",
-      model: "gpt-4o",
-      instructions: `
+    const instructions = `
         You are an AI tutor that helps users critically evaluate misleading data visualizations.
         First, you and the user will be given the flawed reasoning about the given misleading data visualization.
         Then, the user will give you the correction about this flawed reasoning.
@@ -38,8 +55,16 @@ export default async function getEvaluationAndUpdatedReasoning(
         After receiving the user's correction, you will give a one sentence feedback on the user's correction. 
         Only if when the users' correction is correct or partially capture the misleading feature, you will revise the flawed reasoning according to the user's correction.
         However, if the user's correction is not correct or inappropriate (out of context), then only give a short one sentence encouraging message (the second role).
-      `,
-    });
+      `.trim();
+
+    const current = await openai.beta.assistants.retrieve(assistantId);
+
+    if (current.instructions !== instructions || current.model !== model) {
+      await openai.beta.assistants.update(assistantId, {
+        instructions,
+        model,
+      });
+    }
 
     const threadId = await getOrCreateThreadId({
       sessionId: params.sessionId,
@@ -88,7 +113,7 @@ export default async function getEvaluationAndUpdatedReasoning(
     });
 
     const run = await openai.beta.threads.runs.create(threadId, {
-      assistant_id: assistant.id,
+      assistant_id: assistantId,
     });
 
     let runStatus;

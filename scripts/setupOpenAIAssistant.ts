@@ -42,15 +42,7 @@ async function main() {
   const assistant = await openai.beta.assistants.create({
     name: "Visualization Reasoning Tutor",
     model,
-    instructions: `
-      You are an AI tutor that helps users critically evaluate misleading data visualizations.
-      First, you and the user will be given the flawed reasoning about the given misleading data visualization.
-      Then, the user will give you the correction about this flawed reasoning.
-
-      After receiving the user's correction, you will give a one sentence feedback on the user's correction.
-      Only if the users' correction is correct or partially captures the misleading feature, you will revise the flawed reasoning according to the user's correction.
-      However, if the user's correction is not correct or inappropriate (out of context), then only give a short one sentence encouraging message (the second role).
-    `,
+    instructions: `The instructions for the assistant will be updated later. For now, just create the assistant.`,
   });
 
   await db.insert(appConfig).values({
