@@ -27,6 +27,7 @@ const ChatContainer: React.FC = () => {
     isWaitingForChatbotResponse,
   } = useTutorSession();
   const [input, setInput] = useState("");
+  const [phase, setPhase] = useState<"featureIdentification" | "reasoningRevision">("featureIdentification"); 
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -74,8 +75,47 @@ const ChatContainer: React.FC = () => {
     // Wait for both promises to complete
     await Promise.all([userMessagePromise, logUserActionPromise]);
 
-    // Fetch evaluation and reasoning
-    const { assistantFeedback, chatbotReasoning } =
+    let assistantFeedback = "";
+    let chatbotReasoning = "";
+
+    if (phase === "featureIdentification") {
+      const result = await getEvaluationAndUpdatedReasoning({
+        sessionId: sessionId,
+        imageTitle: page.imageTitle,
+        imageFilename: page.imageFilename,
+        misleadingFeature: page.misleadingFeature,
+        initialIncorrectReasoning: page.initialIncorrectReasoning,
+        featureIdentification: input,
+        reasoningRevision: "",
+        phase: "featureIdentification",
+      });
+      assistantFeedback = result.assistantFeedback;
+      chatbotReasoning = result.chatbotReasoning;
+      
+      if (assistantFeedback.toLowerCase().includes("correct")) {
+        setPhase("reasoningRevision"); // 정답이면 넘어감
+      } else {
+        setPhase("featureIdentification"); // 틀리면 계속 feature identification phase
+      }
+
+    } else if (phase === "reasoningRevision") {
+      const result = await getEvaluationAndUpdatedReasoning({
+        sessionId: sessionId,
+        imageTitle: page.imageTitle,
+        imageFilename: page.imageFilename,
+        misleadingFeature: page.misleadingFeature,
+        initialIncorrectReasoning: page.initialIncorrectReasoning,
+        featureIdentification: "",
+        reasoningRevision: input,
+        phase: "reasoningRevision",
+      });
+      assistantFeedback = result.assistantFeedback;
+      chatbotReasoning = result.chatbotReasoning;
+  
+      // reasoningRevision 끝났으면 다음 flow로 가거나 Next 버튼 띄우는 식으로 확장 가능
+    }
+
+    /*const { assistantFeedback, chatbotReasoning } =
       await getEvaluationAndUpdatedReasoning({
         sessionId: sessionId,
         imageTitle: page.imageTitle,
@@ -84,7 +124,7 @@ const ChatContainer: React.FC = () => {
         initialIncorrectReasoning: page.initialIncorrectReasoning,
         userCorrection: input,
       });
-
+    */
     // Create temporary assistant and chatbot messages
     const tempAssistantFeedback = createTemporaryChatMessage({
       role: "assistant",
